@@ -128,17 +128,20 @@ class CutNumberingApp(QMainWindow):
         self.port_input.setValue(3333)
         osc_settings_layout.addRow("ポート:", self.port_input)
         
-        self.message_input = QLineEdit("/startRecording")
+        self.message_input = QLineEdit("/toggleRecording")
         osc_settings_layout.addRow("OSCメッセージ:", self.message_input)
         
         self.value_input = QLineEdit("")
         osc_settings_layout.addRow("値:", self.value_input)
         
-        self.stop_message_input = QLineEdit("/stopRecording")
-        osc_settings_layout.addRow("停止メッセージ:", self.stop_message_input)
+        self.rec_filename_input = QLineEdit("/recFileName")
+        osc_settings_layout.addRow("ファイル名設定コマンド:", self.rec_filename_input)
         
-        self.stop_value_input = QLineEdit("")
-        osc_settings_layout.addRow("停止値:", self.stop_value_input)
+        # self.stop_message_input = QLineEdit("/stopRecording")
+        # osc_settings_layout.addRow("停止メッセージ:", self.stop_message_input)
+        
+        # self.stop_value_input = QLineEdit("")
+        # osc_settings_layout.addRow("停止値:", self.stop_value_input)
         
         osc_settings_group.setLayout(osc_settings_layout)
         settings_tab_layout.addWidget(osc_settings_group)
@@ -177,19 +180,11 @@ class CutNumberingApp(QMainWindow):
             client = udp_client.SimpleUDPClient(ip, port)
             
             filename = self.filename_preview.text()
-            debug_msg = f"送信: /recFileName \"{filename}\""
+            filename_cmd = self.rec_filename_input.text()
+            debug_msg = f"送信: {filename_cmd} \"{filename}\""
             print(debug_msg)
             
-            for _ in range(3):
-                client.send_message("/recFileName", filename)
-                
-            try:
-                value = int(value)
-            except ValueError:
-                try:
-                    value = float(value)
-                except ValueError:
-                    pass
+            client.send_message(filename_cmd, filename)
             
             print(f"送信: {message} {value}")
             client.send_message(message, value)
@@ -208,18 +203,10 @@ class CutNumberingApp(QMainWindow):
         try:
             ip = self.ip_input.text()
             port = self.port_input.value()
-            message = self.stop_message_input.text()
-            value = self.stop_value_input.text()
+            message = self.message_input.text()  # Using the same toggle command
+            value = self.value_input.text()
             
             client = udp_client.SimpleUDPClient(ip, port)
-            
-            try:
-                value = int(value)
-            except ValueError:
-                try:
-                    value = float(value)
-                except ValueError:
-                    pass
             
             print(f"送信: {message} {value}")
             client.send_message(message, value)
@@ -236,8 +223,9 @@ class CutNumberingApp(QMainWindow):
             self.update_filename_preview()
             
             next_filename = self.filename_preview.text()
-            print(f"次の録画用ファイル名を設定: /recFileName \"{next_filename}\"")
-            client.send_message("/recFileName", next_filename)
+            filename_cmd = self.rec_filename_input.text()
+            print(f"次の録画用ファイル名を設定: {filename_cmd} \"{next_filename}\"")
+            client.send_message(filename_cmd, next_filename)
             
             self.status_label.setText(f"録画完了: {self.filename_preview.text()}")
             self.status_label.setStyleSheet("color: blue;")
