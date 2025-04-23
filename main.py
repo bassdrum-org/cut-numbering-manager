@@ -128,16 +128,16 @@ class CutNumberingApp(QMainWindow):
         self.port_input.setValue(8000)
         osc_settings_layout.addRow("ポート:", self.port_input)
         
-        self.message_input = QLineEdit("/record")
+        self.message_input = QLineEdit("/startRecording")
         osc_settings_layout.addRow("OSCメッセージ:", self.message_input)
         
-        self.value_input = QLineEdit("1")
+        self.value_input = QLineEdit("")
         osc_settings_layout.addRow("値:", self.value_input)
         
-        self.stop_message_input = QLineEdit("/record")
+        self.stop_message_input = QLineEdit("/stopRecording")
         osc_settings_layout.addRow("停止メッセージ:", self.stop_message_input)
         
-        self.stop_value_input = QLineEdit("0")
+        self.stop_value_input = QLineEdit("")
         osc_settings_layout.addRow("停止値:", self.stop_value_input)
         
         osc_settings_group.setLayout(osc_settings_layout)
