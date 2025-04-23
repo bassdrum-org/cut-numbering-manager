@@ -128,20 +128,14 @@ class CutNumberingApp(QMainWindow):
         self.port_input.setValue(3333)
         osc_settings_layout.addRow("ポート:", self.port_input)
         
-        self.message_input = QLineEdit("/toggleRecording")
-        osc_settings_layout.addRow("OSCメッセージ:", self.message_input)
+        self.start_message_input = QLineEdit("/startRecording")
+        osc_settings_layout.addRow("録画開始コマンド:", self.start_message_input)
         
-        self.value_input = QLineEdit("")
-        osc_settings_layout.addRow("値:", self.value_input)
+        self.stop_message_input = QLineEdit("/stopRecording")
+        osc_settings_layout.addRow("録画停止コマンド:", self.stop_message_input)
         
         self.rec_filename_input = QLineEdit("/recFileName")
         osc_settings_layout.addRow("ファイル名設定コマンド:", self.rec_filename_input)
-        
-        # self.stop_message_input = QLineEdit("/stopRecording")
-        # osc_settings_layout.addRow("停止メッセージ:", self.stop_message_input)
-        
-        # self.stop_value_input = QLineEdit("")
-        # osc_settings_layout.addRow("停止値:", self.stop_value_input)
         
         osc_settings_group.setLayout(osc_settings_layout)
         settings_tab_layout.addWidget(osc_settings_group)
@@ -174,8 +168,7 @@ class CutNumberingApp(QMainWindow):
         try:
             ip = self.ip_input.text()
             port = self.port_input.value()
-            message = self.message_input.text()
-            value = self.value_input.text()
+            start_message = self.start_message_input.text()
             
             client = udp_client.SimpleUDPClient(ip, port)
             
@@ -186,8 +179,8 @@ class CutNumberingApp(QMainWindow):
             
             client.send_message(filename_cmd, filename)
             
-            print(f"送信: {message} {value}")
-            client.send_message(message, value)
+            print(f"送信: {start_message}")
+            client.send_message(start_message, "")
             
             self.recording = True
             self.rec_button.setText("STOP")
@@ -203,13 +196,12 @@ class CutNumberingApp(QMainWindow):
         try:
             ip = self.ip_input.text()
             port = self.port_input.value()
-            message = self.message_input.text()  # Using the same toggle command
-            value = self.value_input.text()
+            stop_message = self.stop_message_input.text()
             
             client = udp_client.SimpleUDPClient(ip, port)
             
-            print(f"送信: {message} {value}")
-            client.send_message(message, value)
+            print(f"送信: {stop_message}")
+            client.send_message(stop_message, "")
             
             self.recording = False
             self.rec_button.setText("REC")

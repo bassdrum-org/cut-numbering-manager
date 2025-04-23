@@ -29,7 +29,8 @@
 
 OSC for OBSで使用する主なコマンドは以下の通りです：
 
-- `/toggleRecording` - 録画の開始/停止を切り替えます
+- `/startRecording` - 録画を開始します
+- `/stopRecording` - 録画を停止します
 - `/recFileName [filename]` - 録画ファイル名を設定します
 
 ## ファイル名設定機能を使用するための設定
@@ -60,7 +61,8 @@ OSC for OBSには「OSC Tester」機能があります：
 1. OSC for OBSを起動します。
 2. メニューから「File」>「OSC Tester」を選択します。
 3. 以下のコマンドをテストしてみてください：
-   - `/toggleRecording`
+   - `/startRecording`
+   - `/stopRecording`
    - `/recFileName "テストファイル名"`
 
 ## 参考情報
