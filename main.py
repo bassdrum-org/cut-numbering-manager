@@ -125,7 +125,7 @@ class CutNumberingApp(QMainWindow):
         
         self.port_input = QSpinBox()
         self.port_input.setRange(1, 65535)
-        self.port_input.setValue(8000)
+        self.port_input.setValue(3333)
         osc_settings_layout.addRow("ポート:", self.port_input)
         
         self.message_input = QLineEdit("/startRecording")
@@ -175,6 +175,9 @@ class CutNumberingApp(QMainWindow):
             value = self.value_input.text()
             
             client = udp_client.SimpleUDPClient(ip, port)
+            
+            filename = self.filename_preview.text()
+            client.send_message("/recFileName", filename)
             
             try:
                 value = int(value)
