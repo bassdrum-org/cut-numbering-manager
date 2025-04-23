@@ -174,10 +174,11 @@ class CutNumberingApp(QMainWindow):
             
             filename = self.filename_preview.text()
             filename_cmd = self.rec_filename_input.text()
+            
             debug_msg = f"送信: {filename_cmd} \"{filename}\""
             print(debug_msg)
             
-            client.send_message(filename_cmd, filename)
+            client.send_message(filename_cmd, f"\"{filename}\"")
             
             print(f"送信: {start_message}")
             client.send_message(start_message, "")
@@ -216,8 +217,10 @@ class CutNumberingApp(QMainWindow):
             
             next_filename = self.filename_preview.text()
             filename_cmd = self.rec_filename_input.text()
+            
             print(f"次の録画用ファイル名を設定: {filename_cmd} \"{next_filename}\"")
-            client.send_message(filename_cmd, next_filename)
+            
+            client.send_message(filename_cmd, f"\"{next_filename}\"")
             
             self.status_label.setText(f"録画完了: {self.filename_preview.text()}")
             self.status_label.setStyleSheet("color: blue;")
