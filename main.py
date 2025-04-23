@@ -134,8 +134,6 @@ class CutNumberingApp(QMainWindow):
         self.stop_message_input = QLineEdit("/stopRecording")
         osc_settings_layout.addRow("録画停止コマンド:", self.stop_message_input)
         
-        self.rec_filename_input = QLineEdit("/recFileName")
-        osc_settings_layout.addRow("ファイル名設定コマンド:", self.rec_filename_input)
         
         osc_settings_group.setLayout(osc_settings_layout)
         settings_tab_layout.addWidget(osc_settings_group)
@@ -173,12 +171,8 @@ class CutNumberingApp(QMainWindow):
             client = udp_client.SimpleUDPClient(ip, port)
             
             filename = self.filename_preview.text()
-            filename_cmd = self.rec_filename_input.text()
             
-            debug_msg = f"送信: {filename_cmd} \"{filename}\""
-            print(debug_msg)
-            
-            client.send_message(filename_cmd, f"\"{filename}\"")
+            print(f"録画ファイル名を設定: {filename}")
             
             print(f"送信: {start_message}")
             client.send_message(start_message, "")
@@ -216,11 +210,8 @@ class CutNumberingApp(QMainWindow):
             self.update_filename_preview()
             
             next_filename = self.filename_preview.text()
-            filename_cmd = self.rec_filename_input.text()
             
-            print(f"次の録画用ファイル名を設定: {filename_cmd} \"{next_filename}\"")
-            
-            client.send_message(filename_cmd, f"\"{next_filename}\"")
+            print(f"次の録画用ファイル名を設定: {next_filename}")
             
             self.status_label.setText(f"録画完了: {self.filename_preview.text()}")
             self.status_label.setStyleSheet("color: blue;")
