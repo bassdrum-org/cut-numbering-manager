@@ -177,8 +177,12 @@ class CutNumberingApp(QMainWindow):
             client = udp_client.SimpleUDPClient(ip, port)
             
             filename = self.filename_preview.text()
-            client.send_message("/recFileName", filename)
+            debug_msg = f"送信: /recFileName \"{filename}\""
+            print(debug_msg)
             
+            for _ in range(3):
+                client.send_message("/recFileName", filename)
+                
             try:
                 value = int(value)
             except ValueError:
@@ -187,6 +191,7 @@ class CutNumberingApp(QMainWindow):
                 except ValueError:
                     pass
             
+            print(f"送信: {message} {value}")
             client.send_message(message, value)
             
             self.recording = True
@@ -216,6 +221,7 @@ class CutNumberingApp(QMainWindow):
                 except ValueError:
                     pass
             
+            print(f"送信: {message} {value}")
             client.send_message(message, value)
             
             self.recording = False
@@ -227,10 +233,14 @@ class CutNumberingApp(QMainWindow):
             self.current_version = 1
             self.version_input.setValue(self.current_version)
             
+            self.update_filename_preview()
+            
+            next_filename = self.filename_preview.text()
+            print(f"次の録画用ファイル名を設定: /recFileName \"{next_filename}\"")
+            client.send_message("/recFileName", next_filename)
+            
             self.status_label.setText(f"録画完了: {self.filename_preview.text()}")
             self.status_label.setStyleSheet("color: blue;")
-            
-            self.update_filename_preview()
             
         except Exception as e:
             self.status_label.setText(f"エラー: {str(e)}")
