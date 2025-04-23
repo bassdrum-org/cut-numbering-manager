@@ -7,8 +7,15 @@ with OSC integration for OBS recording control.
 import sys
 import os
 import re
-if "DISPLAY" not in os.environ:
+import platform
+
+if platform.system() == "Darwin":  # macOS specific settings
+    os.environ["QT_MAC_WANTS_LAYER"] = "1"  # Fix for macOS rendering issues
+    if "QT_QPA_PLATFORM" in os.environ:
+        del os.environ["QT_QPA_PLATFORM"]  # Avoid offscreen rendering on macOS
+elif "DISPLAY" not in os.environ:
     os.environ["QT_QPA_PLATFORM"] = "offscreen"
+
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton, 
                             QVBoxLayout, QHBoxLayout, QWidget, QLabel, 
                             QLineEdit, QFormLayout, QGroupBox, QSpinBox,
