@@ -16,6 +16,8 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton,
 from PyQt5.QtCore import Qt
 from pythonosc import udp_client
 
+os.environ["QT_LOGGING_RULES"] = "qt5ct.debug=false"
+
 class CutNumberingApp(QMainWindow):
     def __init__(self):
         super().__init__()
