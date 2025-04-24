@@ -128,11 +128,15 @@ class CutNumberingApp(QMainWindow):
         self.port_input.setValue(3333)
         osc_settings_layout.addRow("ポート:", self.port_input)
         
-        self.start_message_input = QLineEdit("/startRecording")
+        self.start_message_input = QLineEdit("/setRecording")
         osc_settings_layout.addRow("録画開始コマンド:", self.start_message_input)
         
-        self.stop_message_input = QLineEdit("/stopRecording")
+        self.stop_message_input = QLineEdit("/setRecording")
         osc_settings_layout.addRow("録画停止コマンド:", self.stop_message_input)
+        
+        self.command_note = QLabel("注意: OSC for OBS v2.7.1では、録画開始には値「1」、停止には値「0」を使用します。")
+        self.command_note.setStyleSheet("color: #555; font-style: italic;")
+        osc_settings_layout.addRow("", self.command_note)
         
         
         osc_settings_group.setLayout(osc_settings_layout)
@@ -174,8 +178,8 @@ class CutNumberingApp(QMainWindow):
             
             print(f"録画ファイル名を設定: {filename}")
             
-            print(f"送信: {start_message}")
-            client.send_message(start_message, "")
+            print(f"送信: {start_message} 1")
+            client.send_message(start_message, 1)
             
             self.recording = True
             self.rec_button.setText("STOP")
@@ -195,8 +199,8 @@ class CutNumberingApp(QMainWindow):
             
             client = udp_client.SimpleUDPClient(ip, port)
             
-            print(f"送信: {stop_message}")
-            client.send_message(stop_message, "")
+            print(f"送信: {stop_message} 0")
+            client.send_message(stop_message, 0)
             
             self.recording = False
             self.rec_button.setText("REC")
