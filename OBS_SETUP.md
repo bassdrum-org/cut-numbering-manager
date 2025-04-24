@@ -4,8 +4,12 @@
 
 ## 必要条件
 
-1. OBS Studio（バージョン28以上推奨）
+1. OBS Studio
+   - OSC for OBS v3.0+を使用する場合: OBS Studio バージョン28以上
+   - OSC for OBS v2.7.1を使用する場合: OBS Studio バージョン27以下
 2. [OSC for OBS](https://github.com/jshea2/OSC-for-OBS/releases) プラグイン
+   - 最新版（v3.0+）: 新しいOBS Studio（v28+）用
+   - v2.7.1: 古いOBS Studio（v27以下）用
 
 ## インストール手順
 
@@ -24,6 +28,19 @@
    - 「Connect」ボタンをクリックして接続します。
 3. OSC for OBSのコンソールタブを開き、接続が成功したことを確認します。
    - 「Successfully connected to OBS」というメッセージが表示されるはずです。
+   - OSC for OBS v2.7.1の場合は、「OSC Input is listening on...」というメッセージが表示されていれば正常です。
+
+## カット番号管理システムの設定
+
+1. アプリケーションを起動します: `python main.py`
+2. 「設定」タブを開きます。
+3. 「OSC for OBSバージョン」で使用しているバージョンを選択します：
+   - 「v3.0以上 (OBS v28+)」: 新しいOBS Studio（v28以上）と最新のOSC for OBSを使用している場合
+   - 「v2.7.1 (OBS v27以下)」: 古いOBS Studio（v27以下）とOSC for OBS v2.7.1を使用している場合
+4. 「送信方法」を選択します：
+   - 「標準 (python-osc)」: 通常はこちらを使用します
+   - 「カスタム (スペース区切り)」: OSC for OBS v2.7.1で「[object Object]」エラーが発生する場合に試してください
+5. IPアドレスとポートを確認します（デフォルトは127.0.0.1:3333）。
 
 ## 正しいOSCコマンド
 
@@ -108,15 +125,25 @@ OSC for OBSが正常に接続されていることを確認します：
 
 OSC for OBS v2.7.1を使用している場合、以下の点に注意してください：
 
-1. コマンド構文が異なります：
+1. バージョン互換性の問題：
+   - OSC for OBS v2.7.1はOBS Studio v27以下とobs-websocket v4.9以下でのみ動作します。
+   - 最新のOBS Studio（v28以上）では、OSC for OBS v3.0以上を使用する必要があります。
+
+2. コマンド構文が異なります：
    - `/startRecording`と`/stopRecording`の代わりに、`/setRecording 1`（開始）と`/setRecording 0`（停止）を使用します。
    - 値（1または0）を必ず指定する必要があります。空の値を送信すると「Invalid) Refresh Browser Syntax」エラーが発生します。
 
-2. カット番号管理システムの設定：
-   - 「設定」タブで、録画開始コマンドと録画停止コマンドを両方とも`/setRecording`に設定します。
+3. 「[object Object]」エラーの解決方法：
+   - このエラーは、OSCメッセージの形式が正しくない場合に発生します。
+   - カット番号管理システムの「設定」タブで、「送信方法」を「カスタム (スペース区切り)」に変更してみてください。
+   - これにより、OSCメッセージが「/setRecording,1」（カンマ区切り）ではなく「/setRecording 1」（スペース区切り）の形式で送信されます。
+
+4. カット番号管理システムの設定：
+   - 「設定」タブで、「OSC for OBSバージョン」を「v2.7.1 (OBS v27以下)」に設定します。
+   - これにより、録画開始コマンドと録画停止コマンドが自動的に`/setRecording`に設定されます。
    - アプリケーションは自動的に適切な値（開始時は1、停止時は0）を送信します。
 
-3. OBSのwebsocket設定画面に表示されない問題：
+5. OBSのwebsocket設定画面に表示されない問題：
    - OSC for OBS v2.7.1はOBSのwebsocket設定画面に表示されない場合がありますが、OSC for OBSのコンソールに「OSC Input is listening on...」と表示されていれば正常に動作しています。
 
 3. OBSの録画設定を確認します：
@@ -154,11 +181,31 @@ OSC for OBSには「OSC Tester」機能があります：
 1. OSC for OBSを起動します。
 2. メニューから「File」>「OSC Tester」を選択します。
 3. 以下のコマンドをテストしてみてください：
-   - `/startRecording`
-   - `/stopRecording`
-   - `/recFileName "テストファイル名"`
+   - OSC for OBS v3.0+の場合:
+     - `/startRecording`
+     - `/stopRecording`
+   - OSC for OBS v2.7.1の場合:
+     - `/setRecording 1`（録画開始）
+     - `/setRecording 0`（録画停止）
+
+## カット番号管理システムの新機能
+
+最新バージョンのカット番号管理システムには、OSC for OBSのバージョン互換性問題を解決するための新機能が追加されています：
+
+1. **バージョン選択機能**:
+   - 「設定」タブの「OSC for OBSバージョン」で、使用しているOSC for OBSのバージョンを選択できます。
+   - これにより、適切なコマンド形式が自動的に設定されます。
+
+2. **送信方法の選択**:
+   - 「標準 (python-osc)」: 通常の送信方法
+   - 「カスタム (スペース区切り)」: OSC for OBS v2.7.1で「[object Object]」エラーが発生する場合に使用
+
+3. **自動カット番号管理**:
+   - 録画停止時に自動的にカット番号がインクリメントされます。
+   - 新しいカットでは、バージョン番号が自動的に1にリセットされます。
 
 ## 参考情報
 
 - [OSC for OBS GitHub](https://github.com/jshea2/OSC-for-OBS)
 - [OBS Studio](https://obsproject.com/)
+- [python-osc](https://github.com/attwad/python-osc) - OSCメッセージを送信するためのPythonライブラリ
