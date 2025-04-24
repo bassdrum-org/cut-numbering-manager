@@ -27,10 +27,16 @@
 
 ## 正しいOSCコマンド
 
-OSC for OBSで使用する主なコマンドは以下の通りです：
+OSC for OBSで使用する主なコマンドはバージョンによって異なります：
 
+### OSC for OBS v3.0以上
 - `/startRecording` - 録画を開始します
 - `/stopRecording` - 録画を停止します
+
+### OSC for OBS v2.7.1
+- `/setRecording 1` - 録画を開始します（値「1」が必要）
+- `/setRecording 0` - 録画を停止します（値「0」が必要）
+- `/toggleRecording` - 録画の開始/停止を切り替えます
 
 **注意**: `/recFileName [filename]` コマンドは現在のOSC for OBSバージョンでは正しく動作しない可能性があります。このコマンドは以前は非推奨となり、現在再実装中です（PR #30参照）。
 
@@ -94,8 +100,24 @@ OSC for OBSが正常に接続されていることを確認します：
    - 「Invalid OSC command」というエラーが表示される場合は、コマンドが間違っているか、現在のバージョンでサポートされていない可能性があります。
    - 「Not connected」というエラーが表示される場合は、OSC for OBSがOBSに接続されていない可能性があります。
    - 「Error: Not implemented」というエラーが表示される場合は、そのコマンドがOSC for OBSの現在のバージョンでサポートされていない可能性があります。
+   - 「Invalid) Refresh Browser Syntax」や「[object Object]」というエラーが表示される場合は、OSC for OBS v2.7.1を使用している可能性があります。この場合、コマンドの構文を変更する必要があります（下記参照）。
    
    **注意**: `/recFileName`コマンドに関するエラーが表示される場合は、このコマンドが現在のバージョンでサポートされていない可能性が高いです。OBSの設定で直接ファイル名形式を設定することをお勧めします。
+
+### OSC for OBS v2.7.1特有の問題
+
+OSC for OBS v2.7.1を使用している場合、以下の点に注意してください：
+
+1. コマンド構文が異なります：
+   - `/startRecording`と`/stopRecording`の代わりに、`/setRecording 1`（開始）と`/setRecording 0`（停止）を使用します。
+   - 値（1または0）を必ず指定する必要があります。空の値を送信すると「Invalid) Refresh Browser Syntax」エラーが発生します。
+
+2. カット番号管理システムの設定：
+   - 「設定」タブで、録画開始コマンドと録画停止コマンドを両方とも`/setRecording`に設定します。
+   - アプリケーションは自動的に適切な値（開始時は1、停止時は0）を送信します。
+
+3. OBSのwebsocket設定画面に表示されない問題：
+   - OSC for OBS v2.7.1はOBSのwebsocket設定画面に表示されない場合がありますが、OSC for OBSのコンソールに「OSC Input is listening on...」と表示されていれば正常に動作しています。
 
 3. OBSの録画設定を確認します：
    - OBSの「設定」>「出力」>「録画」タブで、「ファイル名の形式」や「ファイル名のテンプレート」などの設定がカスタムファイル名を上書きしていないか確認します。
