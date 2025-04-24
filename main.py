@@ -8,6 +8,7 @@ import sys
 import os
 import re
 import platform
+import socket
 
 if platform.system() == "Darwin":  # macOS specific settings
     os.environ["QT_MAC_WANTS_LAYER"] = "1"  # Fix for macOS rendering issues
@@ -19,11 +20,40 @@ elif "DISPLAY" not in os.environ:
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton, 
                             QVBoxLayout, QHBoxLayout, QWidget, QLabel, 
                             QLineEdit, QFormLayout, QGroupBox, QSpinBox,
-                            QTabWidget, QSplitter)
+                            QTabWidget, QSplitter, QComboBox)
 from PyQt5.QtCore import Qt
 from pythonosc import udp_client
 
 os.environ["QT_LOGGING_RULES"] = "qt5ct.debug=false"
+
+class CustomOSCSender:
+    """Custom OSC message sender that can format messages with spaces instead of commas"""
+    def __init__(self, ip, port):
+        self.ip = ip
+        self.port = port
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    
+    def send_message_with_space(self, address, value):
+        """Send an OSC message with a space between address and value"""
+        message = f"{address} {value}"
+        print(f"送信 (カスタム形式): {message}")
+        try:
+            self.socket.sendto(message.encode(), (self.ip, self.port))
+            return True
+        except Exception as e:
+            print(f"エラー: {str(e)}")
+            return False
+    
+    def send_message_standard(self, address, value):
+        """Send an OSC message using the standard python-osc library"""
+        client = udp_client.SimpleUDPClient(self.ip, self.port)
+        print(f"送信 (標準形式): {address} {value}")
+        try:
+            client.send_message(address, value)
+            return True
+        except Exception as e:
+            print(f"エラー: {str(e)}")
+            return False
 
 class CutNumberingApp(QMainWindow):
     def __init__(self):
@@ -128,22 +158,62 @@ class CutNumberingApp(QMainWindow):
         self.port_input.setValue(3333)
         osc_settings_layout.addRow("ポート:", self.port_input)
         
-        self.start_message_input = QLineEdit("/setRecording")
-        osc_settings_layout.addRow("録画開始コマンド:", self.start_message_input)
+        self.version_combo = QComboBox()
+        self.version_combo.addItem("v3.0以上 (OBS v28+)", "v3.0+")
+        self.version_combo.addItem("v2.7.1 (OBS v27以下)", "v2.7.1")
+        self.version_combo.currentIndexChanged.connect(self.update_command_inputs)
+        osc_settings_layout.addRow("OSC for OBSバージョン:", self.version_combo)
         
-        self.stop_message_input = QLineEdit("/setRecording")
-        osc_settings_layout.addRow("録画停止コマンド:", self.stop_message_input)
+        self.command_group = QGroupBox("コマンド設定")
+        self.command_layout = QFormLayout()
         
-        self.command_note = QLabel("注意: OSC for OBS v2.7.1では、録画開始には値「1」、停止には値「0」を使用します。")
+        self.start_message_input = QLineEdit("/startRecording")
+        self.command_layout.addRow("録画開始コマンド:", self.start_message_input)
+        
+        self.stop_message_input = QLineEdit("/stopRecording")
+        self.command_layout.addRow("録画停止コマンド:", self.stop_message_input)
+        
+        self.command_note = QLabel("")
         self.command_note.setStyleSheet("color: #555; font-style: italic;")
-        osc_settings_layout.addRow("", self.command_note)
+        self.command_layout.addRow("", self.command_note)
         
+        self.command_group.setLayout(self.command_layout)
+        osc_settings_layout.addRow(self.command_group)
+        
+        self.send_method_group = QGroupBox("送信方法")
+        self.send_method_layout = QFormLayout()
+        
+        self.use_custom_sender = QComboBox()
+        self.use_custom_sender.addItem("標準 (python-osc)", "standard")
+        self.use_custom_sender.addItem("カスタム (スペース区切り)", "custom")
+        self.send_method_layout.addRow("送信方法:", self.use_custom_sender)
+        
+        self.send_method_note = QLabel("注意: OSC for OBS v2.7.1では、カスタム送信方法を試してみてください。")
+        self.send_method_note.setStyleSheet("color: #555; font-style: italic;")
+        self.send_method_layout.addRow("", self.send_method_note)
+        
+        self.send_method_group.setLayout(self.send_method_layout)
+        osc_settings_layout.addRow(self.send_method_group)
         
         osc_settings_group.setLayout(osc_settings_layout)
         settings_tab_layout.addWidget(osc_settings_group)
         
+        self.update_command_inputs(0)
         self.update_filename_preview()
         
+    def update_command_inputs(self, index):
+        """Update command inputs based on selected OSC for OBS version"""
+        version = self.version_combo.currentData()
+        
+        if version == "v3.0+":
+            self.start_message_input.setText("/startRecording")
+            self.stop_message_input.setText("/stopRecording")
+            self.command_note.setText("注意: OSC for OBS v3.0+では、録画開始と停止に別々のコマンドを使用します。")
+        else:  # v2.7.1
+            self.start_message_input.setText("/setRecording")
+            self.stop_message_input.setText("/setRecording")
+            self.command_note.setText("注意: OSC for OBS v2.7.1では、録画開始には値「1」、停止には値「0」を使用します。")
+    
     def update_filename_preview(self):
         """Update the filename preview based on current inputs"""
         part = self.sanitize_filename(self.part_input.text())
@@ -171,20 +241,34 @@ class CutNumberingApp(QMainWindow):
             ip = self.ip_input.text()
             port = self.port_input.value()
             start_message = self.start_message_input.text()
-            
-            client = udp_client.SimpleUDPClient(ip, port)
+            version = self.version_combo.currentData()
+            send_method = self.use_custom_sender.currentData()
             
             filename = self.filename_preview.text()
-            
             print(f"録画ファイル名を設定: {filename}")
             
-            print(f"送信: {start_message} 1")
-            client.send_message(start_message, 1)
+            success = False
+            if send_method == "custom":
+                sender = CustomOSCSender(ip, port)
+                if version == "v2.7.1":
+                    success = sender.send_message_with_space(start_message, "1")
+                else:
+                    success = sender.send_message_with_space(start_message, "")
+            else:
+                sender = CustomOSCSender(ip, port)
+                if version == "v2.7.1":
+                    success = sender.send_message_standard(start_message, 1)
+                else:
+                    success = sender.send_message_standard(start_message, "")
             
-            self.recording = True
-            self.rec_button.setText("STOP")
-            self.status_label.setText(f"録画中: {self.filename_preview.text()}")
-            self.status_label.setStyleSheet("color: green; font-weight: bold;")
+            if success:
+                self.recording = True
+                self.rec_button.setText("STOP")
+                self.status_label.setText(f"録画中: {self.filename_preview.text()}")
+                self.status_label.setStyleSheet("color: green; font-weight: bold;")
+            else:
+                self.status_label.setText("OSCメッセージの送信に失敗しました")
+                self.status_label.setStyleSheet("color: red;")
             
         except Exception as e:
             self.status_label.setText(f"エラー: {str(e)}")
@@ -196,29 +280,43 @@ class CutNumberingApp(QMainWindow):
             ip = self.ip_input.text()
             port = self.port_input.value()
             stop_message = self.stop_message_input.text()
+            version = self.version_combo.currentData()
+            send_method = self.use_custom_sender.currentData()
             
-            client = udp_client.SimpleUDPClient(ip, port)
+            success = False
+            if send_method == "custom":
+                sender = CustomOSCSender(ip, port)
+                if version == "v2.7.1":
+                    success = sender.send_message_with_space(stop_message, "0")
+                else:
+                    success = sender.send_message_with_space(stop_message, "")
+            else:
+                sender = CustomOSCSender(ip, port)
+                if version == "v2.7.1":
+                    success = sender.send_message_standard(stop_message, 0)
+                else:
+                    success = sender.send_message_standard(stop_message, "")
             
-            print(f"送信: {stop_message} 0")
-            client.send_message(stop_message, 0)
-            
-            self.recording = False
-            self.rec_button.setText("REC")
-            
-            self.current_cut_number += 1
-            self.cut_number_input.setValue(self.current_cut_number)
-            
-            self.current_version = 1
-            self.version_input.setValue(self.current_version)
-            
-            self.update_filename_preview()
-            
-            next_filename = self.filename_preview.text()
-            
-            print(f"次の録画用ファイル名を設定: {next_filename}")
-            
-            self.status_label.setText(f"録画完了: {self.filename_preview.text()}")
-            self.status_label.setStyleSheet("color: blue;")
+            if success:
+                self.recording = False
+                self.rec_button.setText("REC")
+                
+                self.current_cut_number += 1
+                self.cut_number_input.setValue(self.current_cut_number)
+                
+                self.current_version = 1
+                self.version_input.setValue(self.current_version)
+                
+                self.update_filename_preview()
+                
+                next_filename = self.filename_preview.text()
+                print(f"次の録画用ファイル名を設定: {next_filename}")
+                
+                self.status_label.setText(f"録画完了: {self.filename_preview.text()}")
+                self.status_label.setStyleSheet("color: blue;")
+            else:
+                self.status_label.setText("OSCメッセージの送信に失敗しました")
+                self.status_label.setStyleSheet("color: red;")
             
         except Exception as e:
             self.status_label.setText(f"エラー: {str(e)}")
