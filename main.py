@@ -27,7 +27,7 @@ from pythonosc import udp_client
 os.environ["QT_LOGGING_RULES"] = "qt5ct.debug=false"
 
 class CustomOSCSender:
-    """Custom OSC message sender that can format messages with spaces instead of commas"""
+    """Custom OSC message sender with multiple formatting options for compatibility"""
     def __init__(self, ip, port):
         self.ip = ip
         self.port = port
@@ -36,7 +36,18 @@ class CustomOSCSender:
     def send_message_with_space(self, address, value):
         """Send an OSC message with a space between address and value"""
         message = f"{address} {value}"
-        print(f"送信 (カスタム形式): {message}")
+        print(f"送信 (スペース区切り): {message}")
+        try:
+            self.socket.sendto(message.encode(), (self.ip, self.port))
+            return True
+        except Exception as e:
+            print(f"エラー: {str(e)}")
+            return False
+    
+    def send_message_with_comma(self, address, value):
+        """Send an OSC message with a comma between address and value"""
+        message = f"{address},{value}"
+        print(f"送信 (カンマ区切り): {message}")
         try:
             self.socket.sendto(message.encode(), (self.ip, self.port))
             return True
@@ -47,9 +58,20 @@ class CustomOSCSender:
     def send_message_standard(self, address, value):
         """Send an OSC message using the standard python-osc library"""
         client = udp_client.SimpleUDPClient(self.ip, self.port)
-        print(f"送信 (標準形式): {address} {value}")
+        print(f"送信 (標準OSC形式): {address} {value}")
         try:
             client.send_message(address, value)
+            return True
+        except Exception as e:
+            print(f"エラー: {str(e)}")
+            return False
+            
+    def send_message_raw(self, address, value=None):
+        """Send an OSC message as a raw string without any formatting"""
+        message = address if value is None else f"{address}{value}"
+        print(f"送信 (生データ): {message}")
+        try:
+            self.socket.sendto(message.encode(), (self.ip, self.port))
             return True
         except Exception as e:
             print(f"エラー: {str(e)}")
@@ -185,10 +207,12 @@ class CutNumberingApp(QMainWindow):
         
         self.use_custom_sender = QComboBox()
         self.use_custom_sender.addItem("標準 (python-osc)", "standard")
-        self.use_custom_sender.addItem("カスタム (スペース区切り)", "custom")
+        self.use_custom_sender.addItem("スペース区切り (/cmd value)", "space")
+        self.use_custom_sender.addItem("カンマ区切り (/cmd,value)", "comma")
+        self.use_custom_sender.addItem("生データ (/cmdvalue)", "raw")
         self.send_method_layout.addRow("送信方法:", self.use_custom_sender)
         
-        self.send_method_note = QLabel("注意: OSC for OBS v2.7.1では、カスタム送信方法を試してみてください。")
+        self.send_method_note = QLabel("注意: OSC for OBS v2.7.1で問題が発生する場合は、別の送信方法を試してみてください。")
         self.send_method_note.setStyleSheet("color: #555; font-style: italic;")
         self.send_method_layout.addRow("", self.send_method_note)
         
@@ -247,19 +271,26 @@ class CutNumberingApp(QMainWindow):
             filename = self.filename_preview.text()
             print(f"録画ファイル名を設定: {filename}")
             
+            sender = CustomOSCSender(ip, port)
             success = False
-            if send_method == "custom":
-                sender = CustomOSCSender(ip, port)
+            
+            value = "1" if version == "v2.7.1" else ""
+            value_int = 1 if version == "v2.7.1" else None
+            
+            if send_method == "standard":
                 if version == "v2.7.1":
-                    success = sender.send_message_with_space(start_message, "1")
-                else:
-                    success = sender.send_message_with_space(start_message, "")
-            else:
-                sender = CustomOSCSender(ip, port)
-                if version == "v2.7.1":
-                    success = sender.send_message_standard(start_message, 1)
+                    success = sender.send_message_standard(start_message, value_int)
                 else:
                     success = sender.send_message_standard(start_message, "")
+            elif send_method == "space":
+                success = sender.send_message_with_space(start_message, value)
+            elif send_method == "comma":
+                success = sender.send_message_with_comma(start_message, value)
+            elif send_method == "raw":
+                if version == "v2.7.1":
+                    success = sender.send_message_raw(f"{start_message} {value}")
+                else:
+                    success = sender.send_message_raw(start_message)
             
             if success:
                 self.recording = True
@@ -283,19 +314,26 @@ class CutNumberingApp(QMainWindow):
             version = self.version_combo.currentData()
             send_method = self.use_custom_sender.currentData()
             
+            sender = CustomOSCSender(ip, port)
             success = False
-            if send_method == "custom":
-                sender = CustomOSCSender(ip, port)
+            
+            value = "0" if version == "v2.7.1" else ""
+            value_int = 0 if version == "v2.7.1" else None
+            
+            if send_method == "standard":
                 if version == "v2.7.1":
-                    success = sender.send_message_with_space(stop_message, "0")
-                else:
-                    success = sender.send_message_with_space(stop_message, "")
-            else:
-                sender = CustomOSCSender(ip, port)
-                if version == "v2.7.1":
-                    success = sender.send_message_standard(stop_message, 0)
+                    success = sender.send_message_standard(stop_message, value_int)
                 else:
                     success = sender.send_message_standard(stop_message, "")
+            elif send_method == "space":
+                success = sender.send_message_with_space(stop_message, value)
+            elif send_method == "comma":
+                success = sender.send_message_with_comma(stop_message, value)
+            elif send_method == "raw":
+                if version == "v2.7.1":
+                    success = sender.send_message_raw(f"{stop_message} {value}")
+                else:
+                    success = sender.send_message_raw(stop_message)
             
             if success:
                 self.recording = False
