@@ -35,7 +35,7 @@ class ClapperboardPanel(QGroupBox):
         self.setStyleSheet("""
             QGroupBox {
                 background-color: #1a1a1a;
-                border: 2px solid #ffd900;
+                border: 4px solid #ffd900;
                 border-radius: 8px;
                 margin-top: 0px;
             }
@@ -182,7 +182,7 @@ class ClapperboardPanel(QGroupBox):
             self.breathing_animation.setStartValue("""
                 QGroupBox {
                     background-color: #1a1a1a;
-                    border: 2px solid #ffd900;
+                    border: 4px solid #ffd900;
                     border-radius: 8px;
                     margin-top: 0px;
                 }
@@ -194,7 +194,7 @@ class ClapperboardPanel(QGroupBox):
             self.breathing_animation.setEndValue("""
                 QGroupBox {
                     background-color: #1a1a1a;
-                    border: 2px solid #ff0000;
+                    border: 4px solid #ff3333;
                     border-radius: 8px;
                     margin-top: 0px;
                 }
@@ -210,7 +210,7 @@ class ClapperboardPanel(QGroupBox):
             self.setStyleSheet("""
                 QGroupBox {
                     background-color: #1a1a1a;
-                    border: 2px solid #ffd900;
+                    border: 4px solid #ffd900;
                     border-radius: 8px;
                     margin-top: 0px;
                 }
