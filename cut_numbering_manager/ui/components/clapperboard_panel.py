@@ -4,7 +4,7 @@ Panel for displaying cut information in a clapperboard-like UI.
 """
 
 from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QHBoxLayout, QLabel, QWidget, QGridLayout)
-from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, QRect
+from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, QRect, QEvent
 from PyQt5.QtGui import QFont, QColor
 
 
@@ -16,7 +16,18 @@ class ClapperboardPanel(QGroupBox):
         self.cut_info = cut_info
         self.parent = parent
         self.recording = False
+        self.base_font_sizes = {
+            'part_title': 16,
+            'part_value': 42,
+            'scene_title': 16,
+            'scene_value': 42,
+            'cut_title': 16,
+            'cut_value': 84,
+            'version_title': 16,
+            'version_value': 42
+        }
         self._init_ui()
+        self.installEventFilter(self)
     
     def _init_ui(self):
         """Initialize the UI components"""
@@ -38,59 +49,59 @@ class ClapperboardPanel(QGroupBox):
         grid_layout.setSpacing(15)
         
         part_container = QWidget()
-        part_layout = QHBoxLayout(part_container)
-        part_layout.setContentsMargins(5, 5, 5, 5)
+        part_layout = QVBoxLayout(part_container)
+        part_layout.setContentsMargins(10, 10, 10, 10)
         
-        part_title = QLabel("パート")
-        part_title.setStyleSheet("color: #ffd900; font-size: 16px; font-weight: bold;")
-        part_title.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        part_layout.addWidget(part_title)
+        self.part_title = QLabel("パート")
+        self.part_title.setStyleSheet("color: #ffd900; font-size: 16px; font-weight: bold;")
+        self.part_title.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        part_layout.addWidget(self.part_title)
         
         self.part_value = QLabel(self.cut_info.part_name)
         self.part_value.setStyleSheet("font-size: 42px; font-weight: bold;")
-        self.part_value.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.part_value.setAlignment(Qt.AlignRight | Qt.AlignBottom)
         part_layout.addWidget(self.part_value, 1)
         
         scene_container = QWidget()
-        scene_layout = QHBoxLayout(scene_container)
-        scene_layout.setContentsMargins(5, 5, 5, 5)
+        scene_layout = QVBoxLayout(scene_container)
+        scene_layout.setContentsMargins(10, 10, 10, 10)
         
-        scene_title = QLabel("シーン")
-        scene_title.setStyleSheet("color: #ffd900; font-size: 16px; font-weight: bold;")
-        scene_title.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        scene_layout.addWidget(scene_title)
+        self.scene_title = QLabel("シーン")
+        self.scene_title.setStyleSheet("color: #ffd900; font-size: 16px; font-weight: bold;")
+        self.scene_title.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        scene_layout.addWidget(self.scene_title)
         
         self.scene_value = QLabel(self.cut_info.scene_name)
         self.scene_value.setStyleSheet("font-size: 42px; font-weight: bold;")
-        self.scene_value.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.scene_value.setAlignment(Qt.AlignRight | Qt.AlignBottom)
         scene_layout.addWidget(self.scene_value, 1)
         
         cut_container = QWidget()
-        cut_layout = QHBoxLayout(cut_container)
-        cut_layout.setContentsMargins(5, 5, 5, 5)
+        cut_layout = QVBoxLayout(cut_container)
+        cut_layout.setContentsMargins(10, 10, 10, 10)
         
-        cut_title = QLabel("カット")
-        cut_title.setStyleSheet("color: #ffd900; font-size: 16px; font-weight: bold;")
-        cut_title.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        cut_layout.addWidget(cut_title)
+        self.cut_title = QLabel("カット")
+        self.cut_title.setStyleSheet("color: #ffd900; font-size: 16px; font-weight: bold;")
+        self.cut_title.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        cut_layout.addWidget(self.cut_title)
         
         self.cut_value = QLabel(self.cut_info.get_formatted_cut_number())
         self.cut_value.setStyleSheet("font-size: 84px; font-weight: bold;")
-        self.cut_value.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.cut_value.setAlignment(Qt.AlignRight | Qt.AlignBottom)
         cut_layout.addWidget(self.cut_value, 1)
         
         version_container = QWidget()
-        version_layout = QHBoxLayout(version_container)
-        version_layout.setContentsMargins(5, 5, 5, 5)
+        version_layout = QVBoxLayout(version_container)
+        version_layout.setContentsMargins(10, 10, 10, 10)
         
-        version_title = QLabel("バージョン")
-        version_title.setStyleSheet("color: #ffd900; font-size: 16px; font-weight: bold;")
-        version_title.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        version_layout.addWidget(version_title)
+        self.version_title = QLabel("バージョン")
+        self.version_title.setStyleSheet("color: #ffd900; font-size: 16px; font-weight: bold;")
+        self.version_title.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        version_layout.addWidget(self.version_title)
         
         self.version_value = QLabel(self.cut_info.get_formatted_version())
         self.version_value.setStyleSheet("font-size: 42px; font-weight: bold;")
-        self.version_value.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.version_value.setAlignment(Qt.AlignRight | Qt.AlignBottom)
         version_layout.addWidget(self.version_value, 1)
         
         grid_layout.addWidget(part_container, 0, 0)
@@ -102,6 +113,8 @@ class ClapperboardPanel(QGroupBox):
         self.setLayout(main_layout)
         
         self.setMinimumHeight(350)
+        
+        self.update_font_sizes()
     
     def update_ui_from_model(self):
         """Update UI components from the model"""
@@ -109,6 +122,44 @@ class ClapperboardPanel(QGroupBox):
         self.scene_value.setText(self.cut_info.scene_name)
         self.cut_value.setText(self.cut_info.get_formatted_cut_number())
         self.version_value.setText(self.cut_info.get_formatted_version())
+        
+    def eventFilter(self, obj, event):
+        """Filter events to handle resize events"""
+        if obj is self and event.type() == QEvent.Resize:
+            self.update_font_sizes()
+        return super().eventFilter(obj, event)
+    
+    def update_font_sizes(self):
+        """Update font sizes based on current panel size"""
+        width = self.width()
+        height = self.height()
+        
+        base_width = 600
+        base_height = 350
+        
+        scale_w = width / base_width
+        scale_h = height / base_height
+        scale = min(scale_w, scale_h)
+        
+        scale = max(scale, 0.5)
+        
+        part_title_size = int(self.base_font_sizes['part_title'] * scale)
+        part_value_size = int(self.base_font_sizes['part_value'] * scale)
+        scene_title_size = int(self.base_font_sizes['scene_title'] * scale)
+        scene_value_size = int(self.base_font_sizes['scene_value'] * scale)
+        cut_title_size = int(self.base_font_sizes['cut_title'] * scale)
+        cut_value_size = int(self.base_font_sizes['cut_value'] * scale)
+        version_title_size = int(self.base_font_sizes['version_title'] * scale)
+        version_value_size = int(self.base_font_sizes['version_value'] * scale)
+        
+        self.part_title.setStyleSheet(f"color: #ffd900; font-size: {part_title_size}px; font-weight: bold;")
+        self.part_value.setStyleSheet(f"font-size: {part_value_size}px; font-weight: bold;")
+        self.scene_title.setStyleSheet(f"color: #ffd900; font-size: {scene_title_size}px; font-weight: bold;")
+        self.scene_value.setStyleSheet(f"font-size: {scene_value_size}px; font-weight: bold;")
+        self.cut_title.setStyleSheet(f"color: #ffd900; font-size: {cut_title_size}px; font-weight: bold;")
+        self.cut_value.setStyleSheet(f"font-size: {cut_value_size}px; font-weight: bold;")
+        self.version_title.setStyleSheet(f"color: #ffd900; font-size: {version_title_size}px; font-weight: bold;")
+        self.version_value.setStyleSheet(f"font-size: {version_value_size}px; font-weight: bold;")
     
     def set_recording(self, is_recording):
         """Set recording state and update UI accordingly"""
@@ -129,7 +180,7 @@ class ClapperboardPanel(QGroupBox):
                 }
                 QLabel {
                     color: #ffffff;
-                    font-family: 'Arial', 'Helvetica', sans-serif;
+                    font-family: 'Inter', 'Noto Sans', 'Arial', 'Helvetica', sans-serif;
                 }
             """)
             self.breathing_animation.setEndValue("""
@@ -141,11 +192,11 @@ class ClapperboardPanel(QGroupBox):
                 }
                 QLabel {
                     color: #ffffff;
-                    font-family: 'Arial', 'Helvetica', sans-serif;
+                    font-family: 'Inter', 'Noto Sans', 'Arial', 'Helvetica', sans-serif;
                 }
             """)
             self.breathing_animation.setLoopCount(-1)  # 無限ループ
-            self.breathing_animation.setEasingCurve(QEasingCurve.InOutQuad)
+            self.breathing_animation.setEasingCurve(QEasingCurve.InOutSine)  # よりスムーズなイージング
             self.breathing_animation.start()
         else:
             self.setStyleSheet("""
@@ -157,6 +208,6 @@ class ClapperboardPanel(QGroupBox):
                 }
                 QLabel {
                     color: #ffffff;
-                    font-family: 'Arial', 'Helvetica', sans-serif;
+                    font-family: 'Inter', 'Noto Sans', 'Arial', 'Helvetica', sans-serif;
                 }
             """)
