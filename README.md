@@ -50,7 +50,3 @@ python main.py
 ## OBS設定
 
 詳細なOBS設定手順については、[OBS_SETUP.md](OBS_SETUP.md)を参照してください。
-
-## ライセンス
-
-[MIT](LICENSE)
