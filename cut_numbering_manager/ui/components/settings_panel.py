@@ -88,41 +88,6 @@ class SettingsPanel(QWidget):
         
         filename_layout.addLayout(buttons_layout)
         
-        prefix_label = QLabel("接頭辞設定")
-        prefix_label.setStyleSheet("font-weight: bold; margin-top: 20px;")
-        filename_layout.addWidget(prefix_label)
-        
-        prefix_desc = QLabel("各要素の表示名を設定できます。空欄の場合はデフォルト値が使用されます。")
-        prefix_desc.setWordWrap(True)
-        filename_layout.addWidget(prefix_desc)
-        
-        prefix_example = QLabel("例: 「v01」→「version01」にしたい場合は「version」と入力")
-        prefix_example.setWordWrap(True)
-        prefix_example.setStyleSheet("color: #888888; font-style: italic;")
-        filename_layout.addWidget(prefix_example)
-        
-        prefix_grid = QGridLayout()
-        
-        self.prefix_inputs = {}
-        prefixes = self.filename_config.get_all_prefixes()
-        
-        row = 0
-        for element in [FilenameConfig.PART, FilenameConfig.SCENE, FilenameConfig.CUT, FilenameConfig.VERSION]:
-            element_name = self.filename_config.get_element_name(element)
-            label = QLabel(f"{element_name}表示名:")
-            self.prefix_inputs[element] = QLineEdit(prefixes.get(element, ""))
-            self.prefix_inputs[element].setPlaceholderText(f"空欄=デフォルト ({element_name})")
-            self.prefix_inputs[element].textChanged.connect(self.update_prefix)
-            
-            prefix_grid.addWidget(label, row, 0)
-            prefix_grid.addWidget(self.prefix_inputs[element], row, 1)
-            row += 1
-        
-        reset_prefix_button = QPushButton("表示名をデフォルトに戻す")
-        reset_prefix_button.clicked.connect(self.reset_prefixes)
-        prefix_grid.addWidget(reset_prefix_button, row, 0, 1, 2)
-        
-        filename_layout.addLayout(prefix_grid)
         
         preview_label = QLabel("プレビュー: パート_シーン_カット_バージョン")
         preview_label.setStyleSheet("font-weight: bold; margin-top: 20px;")
@@ -169,21 +134,11 @@ class SettingsPanel(QWidget):
     
     def update_prefix(self):
         """Update prefix in the model when input changes"""
-        prefixes = {}
-        for element, input_field in self.prefix_inputs.items():
-            prefixes[element] = input_field.text()
-        
-        self.filename_config.set_all_prefixes(prefixes)
-        self.emit_prefix_changed()
+        pass
     
     def reset_prefixes(self):
         """Reset prefixes to default values"""
         self.filename_config.prefixes = self.filename_config.DEFAULT_PREFIXES.copy()
-        
-        for element, prefix in self.filename_config.get_all_prefixes().items():
-            if element in self.prefix_inputs:
-                self.prefix_inputs[element].setText(prefix)
-        
         self.emit_prefix_changed()
     
     def emit_order_changed(self):
