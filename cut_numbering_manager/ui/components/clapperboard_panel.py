@@ -35,7 +35,7 @@ class ClapperboardPanel(QGroupBox):
         self.setStyleSheet("""
             QGroupBox {
                 background-color: #1a1a1a;
-                border: 4px solid #ffd900;
+                border: 4px solid transparent;
                 border-radius: 8px;
                 margin-top: 0px;
             }
@@ -210,7 +210,7 @@ class ClapperboardPanel(QGroupBox):
             self.setStyleSheet("""
                 QGroupBox {
                     background-color: #1a1a1a;
-                    border: 4px solid #ffd900;
+                    border: 4px solid transparent;
                     border-radius: 8px;
                     margin-top: 0px;
                 }
