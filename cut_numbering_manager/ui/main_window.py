@@ -21,6 +21,7 @@ from PyQt5.QtCore import Qt
 from cut_numbering_manager.ui.components.cut_info_panel import CutInfoPanel
 from cut_numbering_manager.ui.components.settings_panel import SettingsPanel
 from cut_numbering_manager.ui.components.preview_panel import PreviewPanel
+from cut_numbering_manager.ui.components.clapperboard_panel import ClapperboardPanel
 from cut_numbering_manager.models.cut_info import CutInfo
 from cut_numbering_manager.utils.filename import generate_filename
 from cut_numbering_manager.osc.sender import CustomOSCSender
@@ -39,6 +40,65 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(APP_NAME)
         self.setGeometry(*APP_GEOMETRY)
         
+        self.setStyleSheet("""
+            QMainWindow, QWidget {
+                background-color: #1a1a1a;
+                color: #ffffff;
+                font-family: 'Inter', 'Noto Sans', 'Arial', 'Helvetica', sans-serif;
+            }
+            QGroupBox {
+                border: 1px solid #3a3a3a;
+                border-radius: 5px;
+                margin-top: 10px;
+                font-weight: bold;
+                color: #ffffff;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px 0 5px;
+            }
+            QTabWidget::pane {
+                border: 1px solid #3a3a3a;
+                border-radius: 5px;
+            }
+            QTabBar::tab {
+                background-color: #2a2a2a;
+                color: #cccccc;
+                border: 1px solid #3a3a3a;
+                border-bottom: none;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+                padding: 5px 10px;
+                min-width: 50px;
+            }
+            QTabBar::tab:selected {
+                background-color: #1a1a1a;
+                color: #ffd900;
+                border-bottom: none;
+            }
+            QLineEdit, QSpinBox {
+                background-color: #2a2a2a;
+                color: #ffffff;
+                border: 1px solid #3a3a3a;
+                border-radius: 3px;
+                padding: 5px;
+            }
+            QPushButton {
+                background-color: #2a2a2a;
+                color: #ffffff;
+                border: 1px solid #3a3a3a;
+                border-radius: 3px;
+                padding: 5px 10px;
+            }
+            QPushButton:hover {
+                background-color: #3a3a3a;
+            }
+            QPushButton:pressed {
+                background-color: #4a4a4a;
+            }
+        """)
+        
         self.recording = False
         self.cut_info = CutInfo()
         
@@ -51,6 +111,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout(central_widget)
         
+        
         tabs = QTabWidget()
         main_tab = QWidget()
         settings_tab = QWidget()
@@ -58,15 +119,18 @@ class MainWindow(QMainWindow):
         tabs.addTab(main_tab, "メイン")
         tabs.addTab(settings_tab, "設定")
         
-        main_layout.addWidget(tabs)
+        main_tab_layout = QHBoxLayout(main_tab)
+        main_tab_layout.setContentsMargins(5, 5, 5, 5)
         
-        main_tab_layout = QVBoxLayout(main_tab)
+        left_panel = QWidget()
+        left_panel_layout = QVBoxLayout(left_panel)
+        left_panel.setMaximumWidth(300)  # 左パネルの幅を制限
         
-        self.cut_info_panel = CutInfoPanel(self.cut_info, self.update_filename_preview)
-        main_tab_layout.addWidget(self.cut_info_panel)
+        self.cut_info_panel = CutInfoPanel(self.cut_info, self.update_ui)
+        left_panel_layout.addWidget(self.cut_info_panel)
         
         self.preview_panel = PreviewPanel()
-        main_tab_layout.addWidget(self.preview_panel)
+        left_panel_layout.addWidget(self.preview_panel)
         
         rec_group = QGroupBox("録画コントロール")
         rec_layout = QVBoxLayout()
@@ -80,9 +144,11 @@ class MainWindow(QMainWindow):
             "   border-radius: 5px;"
             "   min-height: 50px;"
             "   font-size: 16px;"
+            "   border: 2px solid #ffffff;"
             "}"
             "QPushButton:pressed {"
             "   background-color: #aa0000;"
+            "   border: 2px solid #aaaaaa;"
             "}"
         )
         self.rec_button.clicked.connect(self.toggle_recording)
@@ -94,16 +160,37 @@ class MainWindow(QMainWindow):
         rec_layout.addWidget(self.status_label)
         
         rec_group.setLayout(rec_layout)
-        main_tab_layout.addWidget(rec_group)
+        left_panel_layout.addWidget(rec_group)
+        
+        right_panel = QWidget()
+        right_panel_layout = QVBoxLayout(right_panel)
+        
+        self.clapperboard_panel = ClapperboardPanel(self.cut_info)
+        right_panel_layout.addWidget(self.clapperboard_panel)
+        
+        main_tab_layout.addWidget(left_panel, 1)  # 比率1
+        main_tab_layout.addWidget(right_panel, 2)  # 比率2（右側を大きく）
         
         settings_tab_layout = QVBoxLayout(settings_tab)
+        
         self.settings_panel = SettingsPanel()
+        self.settings_panel.filename_order_changed.connect(self.update_filename_preview)
+        self.settings_panel.prefix_changed.connect(self.update_filename_preview)
         settings_tab_layout.addWidget(self.settings_panel)
+        
+        main_layout.addWidget(tabs)
     
     def update_filename_preview(self):
         """Update the filename preview based on current inputs"""
-        filename = generate_filename(self.cut_info)
+        element_order = self.settings_panel.get_filename_order()
+        prefixes = self.settings_panel.get_prefixes()
+        filename = generate_filename(self.cut_info, element_order, prefixes)
         self.preview_panel.update_preview(filename)
+    
+    def update_ui(self):
+        """Update all UI components from the model"""
+        self.update_filename_preview()
+        self.clapperboard_panel.update_ui_from_model()
     
     def toggle_recording(self):
         """Toggle recording state and send appropriate OSC message"""
@@ -118,7 +205,9 @@ class MainWindow(QMainWindow):
             ip = self.settings_panel.get_ip()
             port = self.settings_panel.get_port()
             
-            filename = generate_filename(self.cut_info)
+            element_order = self.settings_panel.get_filename_order()
+            prefixes = self.settings_panel.get_prefixes()
+            filename = generate_filename(self.cut_info, element_order, prefixes)
             print(f"録画ファイル名を設定: {filename}")
             
             sender = CustomOSCSender(ip, port)
@@ -133,7 +222,9 @@ class MainWindow(QMainWindow):
                 self.recording = True
                 self.rec_button.setText("STOP")
                 self.status_label.setText(f"録画中: {filename}")
-                self.status_label.setStyleSheet("color: green; font-weight: bold;")
+                self.status_label.setStyleSheet("color: #ffd900; font-weight: bold;")  # 黄色に変更
+                
+                self.clapperboard_panel.set_recording(True)
             else:
                 self.status_label.setText("OSCメッセージの送信に失敗しました")
                 self.status_label.setStyleSheet("color: red;")
@@ -155,16 +246,21 @@ class MainWindow(QMainWindow):
                 self.recording = False
                 self.rec_button.setText("REC")
                 
+                self.clapperboard_panel.set_recording(False)
+                
                 self.cut_info.increment_cut()
                 self.cut_info_panel.update_ui_from_model()
+                self.clapperboard_panel.update_ui_from_model()
                 
                 self.update_filename_preview()
                 
-                next_filename = generate_filename(self.cut_info)
+                element_order = self.settings_panel.get_filename_order()
+                prefixes = self.settings_panel.get_prefixes()
+                next_filename = generate_filename(self.cut_info, element_order, prefixes)
                 print(f"次の録画用ファイル名を設定: {next_filename}")
                 
                 self.status_label.setText(f"録画完了: {next_filename}")
-                self.status_label.setStyleSheet("color: blue;")
+                self.status_label.setStyleSheet("color: #ffd900;")  # 青から黄色に変更
             else:
                 self.status_label.setText("OSCメッセージの送信に失敗しました")
                 self.status_label.setStyleSheet("color: red;")
