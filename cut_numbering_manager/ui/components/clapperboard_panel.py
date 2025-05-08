@@ -3,7 +3,7 @@
 Panel for displaying cut information in a clapperboard-like UI.
 """
 
-from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QHBoxLayout, QLabel, QWidget, QGridLayout)
+from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QHBoxLayout, QLabel, QWidget, QGridLayout, QSizePolicy)
 from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, QRect, QEvent
 from PyQt5.QtGui import QFont, QColor
 
@@ -35,7 +35,7 @@ class ClapperboardPanel(QGroupBox):
         self.setStyleSheet("""
             QGroupBox {
                 background-color: #1a1a1a;
-                border: 4px solid transparent;
+                border: 4px solid #444444;
                 border-radius: 8px;
                 margin-top: 0px;
             }
@@ -61,6 +61,8 @@ class ClapperboardPanel(QGroupBox):
         self.part_value.setStyleSheet("font-size: 42px; font-weight: bold;")
         self.part_value.setAlignment(Qt.AlignRight | Qt.AlignBottom)
         self.part_value.setWordWrap(True)  # テキストの折り返しを有効化
+        self.part_value.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # サイズポリシーを設定
+        self.part_value.setMinimumWidth(100)  # 最小幅を設定して折り返しを強制
         part_layout.addWidget(self.part_value, 1)
         
         scene_container = QWidget()
@@ -76,6 +78,8 @@ class ClapperboardPanel(QGroupBox):
         self.scene_value.setStyleSheet("font-size: 42px; font-weight: bold;")
         self.scene_value.setAlignment(Qt.AlignRight | Qt.AlignBottom)
         self.scene_value.setWordWrap(True)  # テキストの折り返しを有効化
+        self.scene_value.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # サイズポリシーを設定
+        self.scene_value.setMinimumWidth(100)  # 最小幅を設定して折り返しを強制
         scene_layout.addWidget(self.scene_value, 1)
         
         cut_container = QWidget()
@@ -91,6 +95,8 @@ class ClapperboardPanel(QGroupBox):
         self.cut_value.setStyleSheet("font-size: 84px; font-weight: bold;")
         self.cut_value.setAlignment(Qt.AlignRight | Qt.AlignBottom)
         self.cut_value.setWordWrap(True)  # テキストの折り返しを有効化
+        self.cut_value.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # サイズポリシーを設定
+        self.cut_value.setMinimumWidth(100)  # 最小幅を設定して折り返しを強制
         cut_layout.addWidget(self.cut_value, 1)
         
         version_container = QWidget()
@@ -106,6 +112,8 @@ class ClapperboardPanel(QGroupBox):
         self.version_value.setStyleSheet("font-size: 42px; font-weight: bold;")
         self.version_value.setAlignment(Qt.AlignRight | Qt.AlignBottom)
         self.version_value.setWordWrap(True)  # テキストの折り返しを有効化
+        self.version_value.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # サイズポリシーを設定
+        self.version_value.setMinimumWidth(100)  # 最小幅を設定して折り返しを強制
         version_layout.addWidget(self.version_value, 1)
         
         grid_layout.addWidget(part_container, 0, 0)
@@ -210,7 +218,7 @@ class ClapperboardPanel(QGroupBox):
             self.setStyleSheet("""
                 QGroupBox {
                     background-color: #1a1a1a;
-                    border: 4px solid transparent;
+                    border: 4px solid #444444;
                     border-radius: 8px;
                     margin-top: 0px;
                 }
