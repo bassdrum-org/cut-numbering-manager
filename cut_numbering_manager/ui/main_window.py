@@ -120,10 +120,12 @@ class MainWindow(QMainWindow):
         tabs.addTab(settings_tab, "設定")
         
         main_tab_layout = QHBoxLayout(main_tab)
-        main_tab_layout.setContentsMargins(5, 5, 5, 5)
+        main_tab_layout.setContentsMargins(2, 2, 2, 2)  # 余白を最小限に
         
         left_panel = QWidget()
         left_panel_layout = QVBoxLayout(left_panel)
+        left_panel_layout.setContentsMargins(2, 2, 2, 2)  # 余白を最小限に
+        left_panel_layout.setSpacing(2)  # 余白を最小限に
         left_panel.setMaximumWidth(300)  # 左パネルの幅を制限
         
         self.cut_info_panel = CutInfoPanel(self.cut_info, self.update_ui)
@@ -164,6 +166,8 @@ class MainWindow(QMainWindow):
         
         right_panel = QWidget()
         right_panel_layout = QVBoxLayout(right_panel)
+        right_panel_layout.setContentsMargins(2, 2, 2, 2)  # 余白を最小限に
+        right_panel_layout.setSpacing(2)  # 余白を最小限に
         
         self.clapperboard_panel = ClapperboardPanel(self.cut_info)
         right_panel_layout.addWidget(self.clapperboard_panel)
@@ -172,6 +176,8 @@ class MainWindow(QMainWindow):
         main_tab_layout.addWidget(right_panel, 2)  # 比率2（右側を大きく）
         
         settings_tab_layout = QVBoxLayout(settings_tab)
+        settings_tab_layout.setContentsMargins(2, 2, 2, 2)  # 余白を最小限に
+        settings_tab_layout.setSpacing(2)  # 余白を最小限に
         
         self.settings_panel = SettingsPanel()
         self.settings_panel.filename_order_changed.connect(self.update_filename_preview)

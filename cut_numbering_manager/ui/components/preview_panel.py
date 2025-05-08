@@ -17,6 +17,7 @@ class PreviewPanel(QGroupBox):
     def _init_ui(self):
         """Initialize the UI components"""
         layout = QVBoxLayout()
+        layout.setContentsMargins(2, 2, 2, 2)  # 余白を最小限に
         
         self.filename_preview = QLabel()
         self.filename_preview.setStyleSheet("font-weight: bold; font-size: 14px;")

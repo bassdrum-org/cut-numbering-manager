@@ -32,6 +32,7 @@ class ClapperboardPanel(QGroupBox):
     def _init_ui(self):
         """Initialize the UI components"""
         main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(2, 2, 2, 2)  # 余白を最小限に
         self.setStyleSheet("""
             QGroupBox {
                 background-color: #1a1a1a;
@@ -46,11 +47,11 @@ class ClapperboardPanel(QGroupBox):
         """)
         
         grid_layout = QGridLayout()
-        grid_layout.setSpacing(15)
+        grid_layout.setSpacing(5)  # 余白を減らす
         
         part_container = QWidget()
         part_layout = QVBoxLayout(part_container)
-        part_layout.setContentsMargins(10, 10, 10, 10)
+        part_layout.setContentsMargins(5, 5, 5, 5)  # 余白を減らす
         
         self.part_title = QLabel("パート")
         self.part_title.setStyleSheet("color: #ffd900; font-size: 16px; font-weight: bold;")
@@ -66,7 +67,7 @@ class ClapperboardPanel(QGroupBox):
         
         scene_container = QWidget()
         scene_layout = QVBoxLayout(scene_container)
-        scene_layout.setContentsMargins(10, 10, 10, 10)
+        scene_layout.setContentsMargins(5, 5, 5, 5)  # 余白を減らす
         
         self.scene_title = QLabel("シーン")
         self.scene_title.setStyleSheet("color: #ffd900; font-size: 16px; font-weight: bold;")
@@ -82,7 +83,7 @@ class ClapperboardPanel(QGroupBox):
         
         cut_container = QWidget()
         cut_layout = QVBoxLayout(cut_container)
-        cut_layout.setContentsMargins(10, 10, 10, 10)
+        cut_layout.setContentsMargins(5, 5, 5, 5)  # 余白を減らす
         
         self.cut_title = QLabel("カット")
         self.cut_title.setStyleSheet("color: #ffd900; font-size: 16px; font-weight: bold;")
@@ -98,7 +99,7 @@ class ClapperboardPanel(QGroupBox):
         
         version_container = QWidget()
         version_layout = QVBoxLayout(version_container)
-        version_layout.setContentsMargins(10, 10, 10, 10)
+        version_layout.setContentsMargins(5, 5, 5, 5)  # 余白を減らす
         
         self.version_title = QLabel("バージョン")
         self.version_title.setStyleSheet("color: #ffd900; font-size: 16px; font-weight: bold;")
@@ -120,7 +121,7 @@ class ClapperboardPanel(QGroupBox):
         main_layout.addLayout(grid_layout)
         self.setLayout(main_layout)
         
-        self.setMinimumHeight(200)
+        self.setMinimumHeight(150)  # 最小高さを減らす
         
         self.update_font_sizes()
     
