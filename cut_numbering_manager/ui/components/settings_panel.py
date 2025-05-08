@@ -92,9 +92,14 @@ class SettingsPanel(QWidget):
         prefix_label.setStyleSheet("font-weight: bold; margin-top: 20px;")
         filename_layout.addWidget(prefix_label)
         
-        prefix_desc = QLabel("各要素の接頭辞を設定できます。例: 「v01」の「v」や「Scene」の「Scene」部分")
+        prefix_desc = QLabel("各要素の表示名を設定できます。空欄の場合はデフォルト値が使用されます。")
         prefix_desc.setWordWrap(True)
         filename_layout.addWidget(prefix_desc)
+        
+        prefix_example = QLabel("例: 「v01」→「version01」にしたい場合は「version」と入力")
+        prefix_example.setWordWrap(True)
+        prefix_example.setStyleSheet("color: #888888; font-style: italic;")
+        filename_layout.addWidget(prefix_example)
         
         prefix_grid = QGridLayout()
         
@@ -104,16 +109,16 @@ class SettingsPanel(QWidget):
         row = 0
         for element in [FilenameConfig.PART, FilenameConfig.SCENE, FilenameConfig.CUT, FilenameConfig.VERSION]:
             element_name = self.filename_config.get_element_name(element)
-            label = QLabel(f"{element_name}接頭辞:")
+            label = QLabel(f"{element_name}表示名:")
             self.prefix_inputs[element] = QLineEdit(prefixes.get(element, ""))
-            self.prefix_inputs[element].setPlaceholderText(f"例: {element}の前に付ける文字")
+            self.prefix_inputs[element].setPlaceholderText(f"空欄=デフォルト ({element_name})")
             self.prefix_inputs[element].textChanged.connect(self.update_prefix)
             
             prefix_grid.addWidget(label, row, 0)
             prefix_grid.addWidget(self.prefix_inputs[element], row, 1)
             row += 1
         
-        reset_prefix_button = QPushButton("接頭辞をデフォルトに戻す")
+        reset_prefix_button = QPushButton("表示名をデフォルトに戻す")
         reset_prefix_button.clicked.connect(self.reset_prefixes)
         prefix_grid.addWidget(reset_prefix_button, row, 0, 1, 2)
         

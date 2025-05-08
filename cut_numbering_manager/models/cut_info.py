@@ -32,28 +32,40 @@ class CutInfo:
         self.version += 1
     
     def get_formatted_cut_number(self, prefix=None):
-        """Get formatted cut number with prefix and leading zeros"""
+        """Get formatted cut number with custom prefix or default"""
         if prefix is None:
             prefix = self.filename_config.get_prefix(FilenameConfig.CUT)
+        
+        if not prefix:
+            return str(self.cut_number).zfill(3)
         return f"{prefix}{str(self.cut_number).zfill(3)}"
     
     def get_formatted_version(self, prefix=None):
-        """Get formatted version with prefix and leading zeros"""
+        """Get formatted version with custom prefix or default"""
         if prefix is None:
             prefix = self.filename_config.get_prefix(FilenameConfig.VERSION)
+        
+        if not prefix and prefix != "":  # Check if None, not empty string
+            return f"v{str(self.version).zfill(2)}"
         return f"{prefix}{str(self.version).zfill(2)}"
     
     def get_formatted_part(self, prefix=None):
-        """Get formatted part name with prefix"""
+        """Get formatted part name with custom prefix or default"""
         if prefix is None:
             prefix = self.filename_config.get_prefix(FilenameConfig.PART)
-        return f"{prefix}{self.part_name}"
+        
+        if not prefix:
+            return self.part_name
+        return prefix
     
     def get_formatted_scene(self, prefix=None):
-        """Get formatted scene name with prefix"""
+        """Get formatted scene name with custom prefix or default"""
         if prefix is None:
             prefix = self.filename_config.get_prefix(FilenameConfig.SCENE)
-        return f"{prefix}{self.scene_name}"
+        
+        if not prefix:
+            return self.scene_name
+        return prefix
     
     @staticmethod
     def sanitize_filename(name):
