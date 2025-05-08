@@ -60,6 +60,7 @@ class ClapperboardPanel(QGroupBox):
         self.part_value = QLabel(self.cut_info.part_name)
         self.part_value.setStyleSheet("font-size: 42px; font-weight: bold;")
         self.part_value.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        self.part_value.setWordWrap(True)  # テキストの折り返しを有効化
         part_layout.addWidget(self.part_value, 1)
         
         scene_container = QWidget()
@@ -74,6 +75,7 @@ class ClapperboardPanel(QGroupBox):
         self.scene_value = QLabel(self.cut_info.scene_name)
         self.scene_value.setStyleSheet("font-size: 42px; font-weight: bold;")
         self.scene_value.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        self.scene_value.setWordWrap(True)  # テキストの折り返しを有効化
         scene_layout.addWidget(self.scene_value, 1)
         
         cut_container = QWidget()
@@ -88,6 +90,7 @@ class ClapperboardPanel(QGroupBox):
         self.cut_value = QLabel(self.cut_info.get_formatted_cut_number())
         self.cut_value.setStyleSheet("font-size: 84px; font-weight: bold;")
         self.cut_value.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        self.cut_value.setWordWrap(True)  # テキストの折り返しを有効化
         cut_layout.addWidget(self.cut_value, 1)
         
         version_container = QWidget()
@@ -102,6 +105,7 @@ class ClapperboardPanel(QGroupBox):
         self.version_value = QLabel(self.cut_info.get_formatted_version())
         self.version_value.setStyleSheet("font-size: 42px; font-weight: bold;")
         self.version_value.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        self.version_value.setWordWrap(True)  # テキストの折り返しを有効化
         version_layout.addWidget(self.version_value, 1)
         
         grid_layout.addWidget(part_container, 0, 0)
@@ -141,16 +145,20 @@ class ClapperboardPanel(QGroupBox):
         scale_h = height / base_height
         scale = min(scale_w, scale_h)
         
-        scale = max(scale, 0.5)
+        scale = max(scale, 0.7)
         
-        part_title_size = int(self.base_font_sizes['part_title'] * scale)
-        part_value_size = int(self.base_font_sizes['part_value'] * scale)
-        scene_title_size = int(self.base_font_sizes['scene_title'] * scale)
-        scene_value_size = int(self.base_font_sizes['scene_value'] * scale)
-        cut_title_size = int(self.base_font_sizes['cut_title'] * scale)
-        cut_value_size = int(self.base_font_sizes['cut_value'] * scale)
-        version_title_size = int(self.base_font_sizes['version_title'] * scale)
-        version_value_size = int(self.base_font_sizes['version_value'] * scale)
+        min_title_size = 12
+        min_value_size = 24
+        min_cut_value_size = 42
+        
+        part_title_size = max(int(self.base_font_sizes['part_title'] * scale), min_title_size)
+        part_value_size = max(int(self.base_font_sizes['part_value'] * scale), min_value_size)
+        scene_title_size = max(int(self.base_font_sizes['scene_title'] * scale), min_title_size)
+        scene_value_size = max(int(self.base_font_sizes['scene_value'] * scale), min_value_size)
+        cut_title_size = max(int(self.base_font_sizes['cut_title'] * scale), min_title_size)
+        cut_value_size = max(int(self.base_font_sizes['cut_value'] * scale), min_cut_value_size)
+        version_title_size = max(int(self.base_font_sizes['version_title'] * scale), min_title_size)
+        version_value_size = max(int(self.base_font_sizes['version_value'] * scale), min_value_size)
         
         self.part_title.setStyleSheet(f"color: #ffd900; font-size: {part_title_size}px; font-weight: bold;")
         self.part_value.setStyleSheet(f"font-size: {part_value_size}px; font-weight: bold;")
