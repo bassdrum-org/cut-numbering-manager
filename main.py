@@ -184,13 +184,17 @@ class CutNumberingApp(QMainWindow):
         version_note.setStyleSheet("font-weight: bold;")
         osc_settings_layout.addRow("バージョン:", version_note)
         
-        command_note = QLabel("録画コマンド: /setRecording 1 (開始) / /setRecording 0 (停止)")
+        command_note = QLabel("録画コマンド: /setRecording (値: 1=開始, 0=停止)")
         command_note.setStyleSheet("color: #555; font-style: italic;")
         osc_settings_layout.addRow("", command_note)
         
-        filename_note = QLabel("ファイル名設定コマンド: /recFileName [filename]")
+        filename_note = QLabel("ファイル名設定コマンド: /recFileName (標準OSC形式)")
         filename_note.setStyleSheet("color: #555; font-style: italic;")
         osc_settings_layout.addRow("", filename_note)
+        
+        format_note = QLabel("※ 標準OSC形式を使用 (python-osc)")
+        format_note.setStyleSheet("color: #555; font-style: italic;")
+        osc_settings_layout.addRow("", format_note)
         
         osc_settings_group.setLayout(osc_settings_layout)
         settings_tab_layout.addWidget(osc_settings_group)
@@ -229,12 +233,12 @@ class CutNumberingApp(QMainWindow):
             print(f"録画ファイル名を設定: {filename}")
             
             sender = CustomOSCSender(ip, port)
-            filename_success = sender.send_message_with_space("/recFileName", filename)
+            filename_success = sender.send_message_standard("/recFileName", filename)
             
             if not filename_success:
                 print("ファイル名設定コマンドの送信に失敗しました。録画は続行します。")
             
-            success = sender.send_message_with_space("/setRecording", "1")
+            success = sender.send_message_standard("/setRecording", 1)
             
             if success:
                 self.recording = True
@@ -256,7 +260,7 @@ class CutNumberingApp(QMainWindow):
             port = self.port_input.value()
             
             sender = CustomOSCSender(ip, port)
-            success = sender.send_message_with_space("/setRecording", "0")
+            success = sender.send_message_standard("/setRecording", 0)
             
             if success:
                 self.recording = False
