@@ -111,25 +111,24 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout(central_widget)
         
-        tabs = QTabWidget()
-        main_tab = QWidget()
-        settings_tab = QWidget()
+        self.setStyleSheet(self.styleSheet().replace(
+            "font-family: 'Courier New', monospace;", 
+            "font-family: 'Arial', 'Helvetica', sans-serif;"
+        ))
         
-        tabs.addTab(main_tab, "メイン")
-        tabs.addTab(settings_tab, "設定")
+        main_content = QWidget()
+        main_content_layout = QHBoxLayout(main_content)
+        main_content_layout.setContentsMargins(0, 0, 0, 0)
         
-        main_layout.addWidget(tabs)
-        
-        main_tab_layout = QVBoxLayout(main_tab)
-        
-        self.clapperboard_panel = ClapperboardPanel(self.cut_info)
-        main_tab_layout.addWidget(self.clapperboard_panel)
+        left_panel = QWidget()
+        left_panel_layout = QVBoxLayout(left_panel)
+        left_panel.setMaximumWidth(300)  # 左パネルの幅を制限
         
         self.cut_info_panel = CutInfoPanel(self.cut_info, self.update_ui)
-        main_tab_layout.addWidget(self.cut_info_panel)
+        left_panel_layout.addWidget(self.cut_info_panel)
         
         self.preview_panel = PreviewPanel()
-        main_tab_layout.addWidget(self.preview_panel)
+        left_panel_layout.addWidget(self.preview_panel)
         
         rec_group = QGroupBox("録画コントロール")
         rec_layout = QVBoxLayout()
@@ -159,11 +158,21 @@ class MainWindow(QMainWindow):
         rec_layout.addWidget(self.status_label)
         
         rec_group.setLayout(rec_layout)
-        main_tab_layout.addWidget(rec_group)
+        left_panel_layout.addWidget(rec_group)
         
-        settings_tab_layout = QVBoxLayout(settings_tab)
         self.settings_panel = SettingsPanel()
-        settings_tab_layout.addWidget(self.settings_panel)
+        left_panel_layout.addWidget(self.settings_panel)
+        
+        right_panel = QWidget()
+        right_panel_layout = QVBoxLayout(right_panel)
+        
+        self.clapperboard_panel = ClapperboardPanel(self.cut_info)
+        right_panel_layout.addWidget(self.clapperboard_panel)
+        
+        main_content_layout.addWidget(left_panel, 1)  # 比率1
+        main_content_layout.addWidget(right_panel, 2)  # 比率2（右側を大きく）
+        
+        main_layout.addWidget(main_content)
     
     def update_filename_preview(self):
         """Update the filename preview based on current inputs"""

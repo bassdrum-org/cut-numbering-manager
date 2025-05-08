@@ -19,7 +19,7 @@ class ClapperboardPanel(QGroupBox):
     
     def _init_ui(self):
         """Initialize the UI components"""
-        main_layout = QVBoxLayout()
+        main_layout = QHBoxLayout()  # 水平レイアウトに変更
         self.setStyleSheet("""
             QGroupBox {
                 background-color: #1a1a1a;
@@ -29,57 +29,66 @@ class ClapperboardPanel(QGroupBox):
             }
             QLabel {
                 color: #ffffff;
-                font-family: 'Courier New', monospace;
+                font-family: 'Arial', 'Helvetica', sans-serif;
             }
         """)
         
-        grid_layout = QGridLayout()
-        grid_layout.setSpacing(10)
+        labels_layout = QVBoxLayout()
+        labels_layout.setSpacing(20)
+        labels_layout.setContentsMargins(10, 10, 10, 10)
         
         part_title = QLabel("パート")
-        part_title.setStyleSheet("color: #ffd900; font-size: 14px; font-weight: bold;")
-        part_title.setAlignment(Qt.AlignCenter)
-        grid_layout.addWidget(part_title, 0, 0)
-        
-        self.part_value = QLabel(self.cut_info.part_name)
-        self.part_value.setStyleSheet("font-size: 32px; font-weight: bold;")
-        self.part_value.setAlignment(Qt.AlignCenter)
-        grid_layout.addWidget(self.part_value, 1, 0)
+        part_title.setStyleSheet("color: #ffd900; font-size: 16px; font-weight: bold;")
+        part_title.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         
         scene_title = QLabel("シーン")
-        scene_title.setStyleSheet("color: #ffd900; font-size: 14px; font-weight: bold;")
-        scene_title.setAlignment(Qt.AlignCenter)
-        grid_layout.addWidget(scene_title, 0, 1)
-        
-        self.scene_value = QLabel(self.cut_info.scene_name)
-        self.scene_value.setStyleSheet("font-size: 32px; font-weight: bold;")
-        self.scene_value.setAlignment(Qt.AlignCenter)
-        grid_layout.addWidget(self.scene_value, 1, 1)
+        scene_title.setStyleSheet("color: #ffd900; font-size: 16px; font-weight: bold;")
+        scene_title.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         
         cut_title = QLabel("カット")
-        cut_title.setStyleSheet("color: #ffd900; font-size: 14px; font-weight: bold;")
-        cut_title.setAlignment(Qt.AlignCenter)
-        grid_layout.addWidget(cut_title, 2, 0)
-        
-        self.cut_value = QLabel(self.cut_info.get_formatted_cut_number())
-        self.cut_value.setStyleSheet("font-size: 64px; font-weight: bold;")
-        self.cut_value.setAlignment(Qt.AlignCenter)
-        grid_layout.addWidget(self.cut_value, 3, 0)
+        cut_title.setStyleSheet("color: #ffd900; font-size: 16px; font-weight: bold;")
+        cut_title.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         
         version_title = QLabel("バージョン")
-        version_title.setStyleSheet("color: #ffd900; font-size: 14px; font-weight: bold;")
-        version_title.setAlignment(Qt.AlignCenter)
-        grid_layout.addWidget(version_title, 2, 1)
+        version_title.setStyleSheet("color: #ffd900; font-size: 16px; font-weight: bold;")
+        version_title.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        
+        labels_layout.addWidget(part_title)
+        labels_layout.addWidget(scene_title)
+        labels_layout.addWidget(cut_title)
+        labels_layout.addWidget(version_title)
+        
+        values_layout = QVBoxLayout()
+        values_layout.setSpacing(20)
+        values_layout.setContentsMargins(10, 10, 10, 10)
+        
+        self.part_value = QLabel(self.cut_info.part_name)
+        self.part_value.setStyleSheet("font-size: 36px; font-weight: bold;")
+        self.part_value.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        
+        self.scene_value = QLabel(self.cut_info.scene_name)
+        self.scene_value.setStyleSheet("font-size: 36px; font-weight: bold;")
+        self.scene_value.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        
+        self.cut_value = QLabel(self.cut_info.get_formatted_cut_number())
+        self.cut_value.setStyleSheet("font-size: 72px; font-weight: bold;")
+        self.cut_value.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         
         self.version_value = QLabel(self.cut_info.get_formatted_version())
-        self.version_value.setStyleSheet("font-size: 32px; font-weight: bold;")
-        self.version_value.setAlignment(Qt.AlignCenter)
-        grid_layout.addWidget(self.version_value, 3, 1)
+        self.version_value.setStyleSheet("font-size: 36px; font-weight: bold;")
+        self.version_value.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         
-        main_layout.addLayout(grid_layout)
+        values_layout.addWidget(self.part_value)
+        values_layout.addWidget(self.scene_value)
+        values_layout.addWidget(self.cut_value)
+        values_layout.addWidget(self.version_value)
+        
+        main_layout.addLayout(labels_layout, 1)  # 1の比率
+        main_layout.addLayout(values_layout, 3)  # 3の比率（右側を大きく）
+        
         self.setLayout(main_layout)
         
-        self.setMinimumHeight(250)
+        self.setMinimumHeight(300)
     
     def update_ui_from_model(self):
         """Update UI components from the model"""
