@@ -44,7 +44,7 @@ class MainWindow(QMainWindow):
             QMainWindow, QWidget {
                 background-color: #1a1a1a;
                 color: #ffffff;
-                font-family: 'Courier New', monospace;
+                font-family: 'Inter', 'Noto Sans', 'Arial', 'Helvetica', sans-serif;
             }
             QGroupBox {
                 border: 1px solid #3a3a3a;
@@ -111,14 +111,16 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout(central_widget)
         
-        self.setStyleSheet(self.styleSheet().replace(
-            "font-family: 'Courier New', monospace;", 
-            "font-family: 'Arial', 'Helvetica', sans-serif;"
-        ))
         
-        main_content = QWidget()
-        main_content_layout = QHBoxLayout(main_content)
-        main_content_layout.setContentsMargins(0, 0, 0, 0)
+        tabs = QTabWidget()
+        main_tab = QWidget()
+        settings_tab = QWidget()
+        
+        tabs.addTab(main_tab, "メイン")
+        tabs.addTab(settings_tab, "設定")
+        
+        main_tab_layout = QHBoxLayout(main_tab)
+        main_tab_layout.setContentsMargins(5, 5, 5, 5)
         
         left_panel = QWidget()
         left_panel_layout = QVBoxLayout(left_panel)
@@ -160,19 +162,21 @@ class MainWindow(QMainWindow):
         rec_group.setLayout(rec_layout)
         left_panel_layout.addWidget(rec_group)
         
-        self.settings_panel = SettingsPanel()
-        left_panel_layout.addWidget(self.settings_panel)
-        
         right_panel = QWidget()
         right_panel_layout = QVBoxLayout(right_panel)
         
         self.clapperboard_panel = ClapperboardPanel(self.cut_info)
         right_panel_layout.addWidget(self.clapperboard_panel)
         
-        main_content_layout.addWidget(left_panel, 1)  # 比率1
-        main_content_layout.addWidget(right_panel, 2)  # 比率2（右側を大きく）
+        main_tab_layout.addWidget(left_panel, 1)  # 比率1
+        main_tab_layout.addWidget(right_panel, 2)  # 比率2（右側を大きく）
         
-        main_layout.addWidget(main_content)
+        settings_tab_layout = QVBoxLayout(settings_tab)
+        
+        self.settings_panel = SettingsPanel()
+        settings_tab_layout.addWidget(self.settings_panel)
+        
+        main_layout.addWidget(tabs)
     
     def update_filename_preview(self):
         """Update the filename preview based on current inputs"""
@@ -212,7 +216,9 @@ class MainWindow(QMainWindow):
                 self.recording = True
                 self.rec_button.setText("STOP")
                 self.status_label.setText(f"録画中: {filename}")
-                self.status_label.setStyleSheet("color: green; font-weight: bold;")
+                self.status_label.setStyleSheet("color: #ffd900; font-weight: bold;")  # 黄色に変更
+                
+                self.clapperboard_panel.set_recording(True)
             else:
                 self.status_label.setText("OSCメッセージの送信に失敗しました")
                 self.status_label.setStyleSheet("color: red;")
@@ -234,6 +240,8 @@ class MainWindow(QMainWindow):
                 self.recording = False
                 self.rec_button.setText("REC")
                 
+                self.clapperboard_panel.set_recording(False)
+                
                 self.cut_info.increment_cut()
                 self.cut_info_panel.update_ui_from_model()
                 self.clapperboard_panel.update_ui_from_model()
@@ -244,7 +252,7 @@ class MainWindow(QMainWindow):
                 print(f"次の録画用ファイル名を設定: {next_filename}")
                 
                 self.status_label.setText(f"録画完了: {next_filename}")
-                self.status_label.setStyleSheet("color: blue;")
+                self.status_label.setStyleSheet("color: #ffd900;")  # 青から黄色に変更
             else:
                 self.status_label.setText("OSCメッセージの送信に失敗しました")
                 self.status_label.setStyleSheet("color: red;")
