@@ -180,63 +180,23 @@ class CutNumberingApp(QMainWindow):
         self.port_input.setValue(3333)
         osc_settings_layout.addRow("ポート:", self.port_input)
         
-        self.version_combo = QComboBox()
-        self.version_combo.addItem("v3.0以上 (OBS v28+)", "v3.0+")
-        self.version_combo.addItem("v2.7.1 (OBS v27以下)", "v2.7.1")
-        self.version_combo.currentIndexChanged.connect(self.update_command_inputs)
-        osc_settings_layout.addRow("OSC for OBSバージョン:", self.version_combo)
+        version_note = QLabel("OSC for OBS v2.7.1 (OBS v27.2.4用)")
+        version_note.setStyleSheet("font-weight: bold;")
+        osc_settings_layout.addRow("バージョン:", version_note)
         
-        self.command_group = QGroupBox("コマンド設定")
-        self.command_layout = QFormLayout()
+        command_note = QLabel("録画コマンド: /setRecording 1 (開始) / /setRecording 0 (停止)")
+        command_note.setStyleSheet("color: #555; font-style: italic;")
+        osc_settings_layout.addRow("", command_note)
         
-        self.start_message_input = QLineEdit("/startRecording")
-        self.command_layout.addRow("録画開始コマンド:", self.start_message_input)
-        
-        self.stop_message_input = QLineEdit("/stopRecording")
-        self.command_layout.addRow("録画停止コマンド:", self.stop_message_input)
-        
-        self.command_note = QLabel("")
-        self.command_note.setStyleSheet("color: #555; font-style: italic;")
-        self.command_layout.addRow("", self.command_note)
-        
-        self.command_group.setLayout(self.command_layout)
-        osc_settings_layout.addRow(self.command_group)
-        
-        self.send_method_group = QGroupBox("送信方法")
-        self.send_method_layout = QFormLayout()
-        
-        self.use_custom_sender = QComboBox()
-        self.use_custom_sender.addItem("標準 (python-osc)", "standard")
-        self.use_custom_sender.addItem("スペース区切り (/cmd value)", "space")
-        self.use_custom_sender.addItem("カンマ区切り (/cmd,value)", "comma")
-        self.use_custom_sender.addItem("生データ (/cmdvalue)", "raw")
-        self.send_method_layout.addRow("送信方法:", self.use_custom_sender)
-        
-        self.send_method_note = QLabel("注意: OSC for OBS v2.7.1で問題が発生する場合は、別の送信方法を試してみてください。")
-        self.send_method_note.setStyleSheet("color: #555; font-style: italic;")
-        self.send_method_layout.addRow("", self.send_method_note)
-        
-        self.send_method_group.setLayout(self.send_method_layout)
-        osc_settings_layout.addRow(self.send_method_group)
+        filename_note = QLabel("ファイル名設定コマンド: /recFileName [filename]")
+        filename_note.setStyleSheet("color: #555; font-style: italic;")
+        osc_settings_layout.addRow("", filename_note)
         
         osc_settings_group.setLayout(osc_settings_layout)
         settings_tab_layout.addWidget(osc_settings_group)
         
-        self.update_command_inputs(0)
         self.update_filename_preview()
         
-    def update_command_inputs(self, index):
-        """Update command inputs based on selected OSC for OBS version"""
-        version = self.version_combo.currentData()
-        
-        if version == "v3.0+":
-            self.start_message_input.setText("/startRecording")
-            self.stop_message_input.setText("/stopRecording")
-            self.command_note.setText("注意: OSC for OBS v3.0+では、録画開始と停止に別々のコマンドを使用します。")
-        else:  # v2.7.1
-            self.start_message_input.setText("/setRecording")
-            self.stop_message_input.setText("/setRecording")
-            self.command_note.setText("注意: OSC for OBS v2.7.1では、録画開始には値「1」、停止には値「0」を使用します。")
     
     def update_filename_preview(self):
         """Update the filename preview based on current inputs"""
@@ -264,33 +224,17 @@ class CutNumberingApp(QMainWindow):
         try:
             ip = self.ip_input.text()
             port = self.port_input.value()
-            start_message = self.start_message_input.text()
-            version = self.version_combo.currentData()
-            send_method = self.use_custom_sender.currentData()
             
             filename = self.filename_preview.text()
             print(f"録画ファイル名を設定: {filename}")
             
             sender = CustomOSCSender(ip, port)
-            success = False
+            filename_success = sender.send_message_with_space("/recFileName", filename)
             
-            value = "1" if version == "v2.7.1" else ""
-            value_int = 1 if version == "v2.7.1" else None
+            if not filename_success:
+                print("ファイル名設定コマンドの送信に失敗しました。録画は続行します。")
             
-            if send_method == "standard":
-                if version == "v2.7.1":
-                    success = sender.send_message_standard(start_message, value_int)
-                else:
-                    success = sender.send_message_standard(start_message, "")
-            elif send_method == "space":
-                success = sender.send_message_with_space(start_message, value)
-            elif send_method == "comma":
-                success = sender.send_message_with_comma(start_message, value)
-            elif send_method == "raw":
-                if version == "v2.7.1":
-                    success = sender.send_message_raw(f"{start_message} {value}")
-                else:
-                    success = sender.send_message_raw(start_message)
+            success = sender.send_message_with_space("/setRecording", "1")
             
             if success:
                 self.recording = True
@@ -310,30 +254,9 @@ class CutNumberingApp(QMainWindow):
         try:
             ip = self.ip_input.text()
             port = self.port_input.value()
-            stop_message = self.stop_message_input.text()
-            version = self.version_combo.currentData()
-            send_method = self.use_custom_sender.currentData()
             
             sender = CustomOSCSender(ip, port)
-            success = False
-            
-            value = "0" if version == "v2.7.1" else ""
-            value_int = 0 if version == "v2.7.1" else None
-            
-            if send_method == "standard":
-                if version == "v2.7.1":
-                    success = sender.send_message_standard(stop_message, value_int)
-                else:
-                    success = sender.send_message_standard(stop_message, "")
-            elif send_method == "space":
-                success = sender.send_message_with_space(stop_message, value)
-            elif send_method == "comma":
-                success = sender.send_message_with_comma(stop_message, value)
-            elif send_method == "raw":
-                if version == "v2.7.1":
-                    success = sender.send_message_raw(f"{stop_message} {value}")
-                else:
-                    success = sender.send_message_raw(stop_message)
+            success = sender.send_message_with_space("/setRecording", "0")
             
             if success:
                 self.recording = False

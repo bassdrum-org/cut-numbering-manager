@@ -1,45 +1,56 @@
-# Cut Numbering Manager
+# カット番号管理システム (Cut Numbering Manager)
 
-A simple PyQt5 application for sending OSC (Open Sound Control) messages with a REC button.
+アニメ制作現場でのカット番号管理を自動化するPyQt5アプリケーションです。OBSとOSC通信を行い、録画ファイルの命名規則を自動化します。
 
-## Features
+## 機能
 
-- Simple GUI with a REC button
-- Configurable IP address and port
-- Customizable OSC message and value
-- Visual feedback when messages are sent
+- カット番号の自動管理
+- ファイル命名規則の自動適用: `{パート名}_{シーン名}_{カット番号}_{バージョン名}`
+- OBSとのOSC連携による録画制御
+- バージョン管理の自動化
 
-## Requirements
+## 必要条件
 
+### ソフトウェア要件
+- **OBS Studio**: バージョン27.2.4
+  - [ダウンロードリンク](https://github.com/obsproject/obs-studio/releases/tag/27.2.4)
+- **OSC for OBS**: バージョン2.7.1
+  - [ダウンロードリンク](https://github.com/jshea2/OSC-for-OBS/releases/tag/v2.7)
+- **OBS WebSocket**: バージョン5.0.1（compatフラグ付き）
+  - [ダウンロードリンク](https://github.com/obsproject/obs-websocket/releases/tag/5.0.1)
+
+### Python要件
 - Python 3.x
 - PyQt5
 - python-osc
 
-## Installation
+## インストール
 
-1. Clone this repository
-2. Install the required packages:
+1. このリポジトリをクローンします
+2. 必要なパッケージをインストールします:
 
 ```bash
-pip install PyQt5 python-osc
+pip install -r requirements.txt
 ```
 
-## Usage
+## 使用方法
 
-Run the application:
+1. OBS Studio v27.2.4とOSC for OBS v2.7.1をインストールします
+2. アプリケーションを起動します:
 
 ```bash
 python main.py
 ```
 
-The default settings are:
-- IP Address: 127.0.0.1 (localhost)
-- Port: 8000
-- OSC Message: /record
-- Value: 1
+3. メインタブでパート名、シーン名、カット番号、バージョンを入力します
+4. 設定タブでOSCの設定を確認します（デフォルト: 127.0.0.1:3333）
+5. RECボタンを押して録画を開始し、STOPボタンで録画を停止します
+6. 録画停止時に自動的にカット番号がインクリメントされます
 
-You can modify these settings in the application interface before pressing the REC button.
+## OBS設定
 
-## License
+詳細なOBS設定手順については、[OBS_SETUP.md](OBS_SETUP.md)を参照してください。
+
+## ライセンス
 
 [MIT](LICENSE)
