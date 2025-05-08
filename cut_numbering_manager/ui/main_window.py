@@ -175,6 +175,7 @@ class MainWindow(QMainWindow):
         
         self.settings_panel = SettingsPanel()
         self.settings_panel.filename_order_changed.connect(self.update_filename_preview)
+        self.settings_panel.prefix_changed.connect(self.update_filename_preview)
         settings_tab_layout.addWidget(self.settings_panel)
         
         main_layout.addWidget(tabs)
@@ -182,7 +183,8 @@ class MainWindow(QMainWindow):
     def update_filename_preview(self):
         """Update the filename preview based on current inputs"""
         element_order = self.settings_panel.get_filename_order()
-        filename = generate_filename(self.cut_info, element_order)
+        prefixes = self.settings_panel.get_prefixes()
+        filename = generate_filename(self.cut_info, element_order, prefixes)
         self.preview_panel.update_preview(filename)
     
     def update_ui(self):
@@ -204,7 +206,8 @@ class MainWindow(QMainWindow):
             port = self.settings_panel.get_port()
             
             element_order = self.settings_panel.get_filename_order()
-            filename = generate_filename(self.cut_info, element_order)
+            prefixes = self.settings_panel.get_prefixes()
+            filename = generate_filename(self.cut_info, element_order, prefixes)
             print(f"録画ファイル名を設定: {filename}")
             
             sender = CustomOSCSender(ip, port)
@@ -252,7 +255,8 @@ class MainWindow(QMainWindow):
                 self.update_filename_preview()
                 
                 element_order = self.settings_panel.get_filename_order()
-                next_filename = generate_filename(self.cut_info, element_order)
+                prefixes = self.settings_panel.get_prefixes()
+                next_filename = generate_filename(self.cut_info, element_order, prefixes)
                 print(f"次の録画用ファイル名を設定: {next_filename}")
                 
                 self.status_label.setText(f"録画完了: {next_filename}")

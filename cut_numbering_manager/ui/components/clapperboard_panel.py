@@ -35,8 +35,8 @@ class ClapperboardPanel(QGroupBox):
         self.setStyleSheet("""
             QGroupBox {
                 background-color: #1a1a1a;
-                border: 4px solid #444444;
-                border-radius: 8px;
+                border: 1px solid #3a3a3a;
+                border-radius: 5px;
                 margin-top: 0px;
             }
             QLabel {
@@ -185,13 +185,11 @@ class ClapperboardPanel(QGroupBox):
             self.breathing_animation.stop()
         
         if is_recording:
-            self.breathing_animation = QPropertyAnimation(self, b"styleSheet")
-            self.breathing_animation.setDuration(1500)  # 1.5秒周期
-            self.breathing_animation.setStartValue("""
+            self.setStyleSheet("""
                 QGroupBox {
                     background-color: #1a1a1a;
-                    border: 4px solid #ffd900;
-                    border-radius: 8px;
+                    border: 2px solid #ffd900;
+                    border-radius: 5px;
                     margin-top: 0px;
                 }
                 QLabel {
@@ -199,27 +197,12 @@ class ClapperboardPanel(QGroupBox):
                     font-family: 'Inter', 'Noto Sans', 'Arial', 'Helvetica', sans-serif;
                 }
             """)
-            self.breathing_animation.setEndValue("""
-                QGroupBox {
-                    background-color: #1a1a1a;
-                    border: 4px solid #ff3333;
-                    border-radius: 8px;
-                    margin-top: 0px;
-                }
-                QLabel {
-                    color: #ffffff;
-                    font-family: 'Inter', 'Noto Sans', 'Arial', 'Helvetica', sans-serif;
-                }
-            """)
-            self.breathing_animation.setLoopCount(-1)  # 無限ループ
-            self.breathing_animation.setEasingCurve(QEasingCurve.InOutSine)  # よりスムーズなイージング
-            self.breathing_animation.start()
         else:
             self.setStyleSheet("""
                 QGroupBox {
                     background-color: #1a1a1a;
-                    border: 4px solid #444444;
-                    border-radius: 8px;
+                    border: 1px solid #3a3a3a;
+                    border-radius: 5px;
                     margin-top: 0px;
                 }
                 QLabel {
