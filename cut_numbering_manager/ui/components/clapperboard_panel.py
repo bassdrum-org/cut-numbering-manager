@@ -6,6 +6,7 @@ Panel for displaying cut information in a clapperboard-like UI.
 from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QHBoxLayout, QLabel, QWidget, QGridLayout, QSizePolicy)
 from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, QRect, QEvent
 from PyQt5.QtGui import QFont, QColor
+from cut_numbering_manager.ui.components.animated_number_label import AnimatedNumberLabel
 
 
 class ClapperboardPanel(QGroupBox):
@@ -90,10 +91,10 @@ class ClapperboardPanel(QGroupBox):
         self.cut_title.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         cut_layout.addWidget(self.cut_title)
         
-        self.cut_value = QLabel(self.cut_info.get_formatted_cut_number())
-        self.cut_value.setStyleSheet("font-size: 84px; font-weight: bold;")
-        self.cut_value.setAlignment(Qt.AlignRight | Qt.AlignBottom)
-        self.cut_value.setWordWrap(False)
+        self.cut_value = AnimatedNumberLabel()
+        self.cut_value.setText(self.cut_info.get_formatted_cut_number())
+        self.cut_value.setFontSize(84)
+        self.cut_value.setFontWeight("bold")
         self.cut_value.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         cut_layout.addWidget(self.cut_value, 1)
         
@@ -106,10 +107,10 @@ class ClapperboardPanel(QGroupBox):
         self.version_title.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         version_layout.addWidget(self.version_title)
         
-        self.version_value = QLabel(self.cut_info.get_formatted_version())
-        self.version_value.setStyleSheet("font-size: 42px; font-weight: bold;")
-        self.version_value.setAlignment(Qt.AlignRight | Qt.AlignBottom)
-        self.version_value.setWordWrap(False)
+        self.version_value = AnimatedNumberLabel()
+        self.version_value.setText(self.cut_info.get_formatted_version())
+        self.version_value.setFontSize(42)
+        self.version_value.setFontWeight("bold")
         self.version_value.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         version_layout.addWidget(self.version_value, 1)
         
@@ -129,6 +130,7 @@ class ClapperboardPanel(QGroupBox):
         """Update UI components from the model"""
         self.part_value.setText(self.cut_info.part_name)
         self.scene_value.setText(self.cut_info.scene_name)
+        
         self.cut_value.setText(self.cut_info.get_formatted_cut_number())
         self.version_value.setText(self.cut_info.get_formatted_version())
         
@@ -170,9 +172,9 @@ class ClapperboardPanel(QGroupBox):
         self.scene_title.setStyleSheet(f"color: #ffd900; font-size: {scene_title_size}px; font-weight: bold;")
         self.scene_value.setStyleSheet(f"font-size: {scene_value_size}px; font-weight: bold;")
         self.cut_title.setStyleSheet(f"color: #ffd900; font-size: {cut_title_size}px; font-weight: bold;")
-        self.cut_value.setStyleSheet(f"font-size: {cut_value_size}px; font-weight: bold;")
+        self.cut_value.setFontSize(cut_value_size)
         self.version_title.setStyleSheet(f"color: #ffd900; font-size: {version_title_size}px; font-weight: bold;")
-        self.version_value.setStyleSheet(f"font-size: {version_value_size}px; font-weight: bold;")
+        self.version_value.setFontSize(version_value_size)
     
     def set_recording(self, is_recording):
         """Set recording state and update UI accordingly"""
