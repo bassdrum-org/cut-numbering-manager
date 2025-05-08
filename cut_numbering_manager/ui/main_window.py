@@ -21,6 +21,7 @@ from PyQt5.QtCore import Qt
 from cut_numbering_manager.ui.components.cut_info_panel import CutInfoPanel
 from cut_numbering_manager.ui.components.settings_panel import SettingsPanel
 from cut_numbering_manager.ui.components.preview_panel import PreviewPanel
+from cut_numbering_manager.ui.components.clapperboard_panel import ClapperboardPanel
 from cut_numbering_manager.models.cut_info import CutInfo
 from cut_numbering_manager.utils.filename import generate_filename
 from cut_numbering_manager.osc.sender import CustomOSCSender
@@ -38,6 +39,65 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle(APP_NAME)
         self.setGeometry(*APP_GEOMETRY)
+        
+        self.setStyleSheet("""
+            QMainWindow, QWidget {
+                background-color: #1a1a1a;
+                color: #ffffff;
+                font-family: 'Courier New', monospace;
+            }
+            QGroupBox {
+                border: 1px solid #3a3a3a;
+                border-radius: 5px;
+                margin-top: 10px;
+                font-weight: bold;
+                color: #ffffff;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px 0 5px;
+            }
+            QTabWidget::pane {
+                border: 1px solid #3a3a3a;
+                border-radius: 5px;
+            }
+            QTabBar::tab {
+                background-color: #2a2a2a;
+                color: #cccccc;
+                border: 1px solid #3a3a3a;
+                border-bottom: none;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+                padding: 5px 10px;
+                min-width: 50px;
+            }
+            QTabBar::tab:selected {
+                background-color: #1a1a1a;
+                color: #ffd900;
+                border-bottom: none;
+            }
+            QLineEdit, QSpinBox {
+                background-color: #2a2a2a;
+                color: #ffffff;
+                border: 1px solid #3a3a3a;
+                border-radius: 3px;
+                padding: 5px;
+            }
+            QPushButton {
+                background-color: #2a2a2a;
+                color: #ffffff;
+                border: 1px solid #3a3a3a;
+                border-radius: 3px;
+                padding: 5px 10px;
+            }
+            QPushButton:hover {
+                background-color: #3a3a3a;
+            }
+            QPushButton:pressed {
+                background-color: #4a4a4a;
+            }
+        """)
         
         self.recording = False
         self.cut_info = CutInfo()
@@ -62,7 +122,10 @@ class MainWindow(QMainWindow):
         
         main_tab_layout = QVBoxLayout(main_tab)
         
-        self.cut_info_panel = CutInfoPanel(self.cut_info, self.update_filename_preview)
+        self.clapperboard_panel = ClapperboardPanel(self.cut_info)
+        main_tab_layout.addWidget(self.clapperboard_panel)
+        
+        self.cut_info_panel = CutInfoPanel(self.cut_info, self.update_ui)
         main_tab_layout.addWidget(self.cut_info_panel)
         
         self.preview_panel = PreviewPanel()
@@ -80,9 +143,11 @@ class MainWindow(QMainWindow):
             "   border-radius: 5px;"
             "   min-height: 50px;"
             "   font-size: 16px;"
+            "   border: 2px solid #ffffff;"
             "}"
             "QPushButton:pressed {"
             "   background-color: #aa0000;"
+            "   border: 2px solid #aaaaaa;"
             "}"
         )
         self.rec_button.clicked.connect(self.toggle_recording)
@@ -104,6 +169,11 @@ class MainWindow(QMainWindow):
         """Update the filename preview based on current inputs"""
         filename = generate_filename(self.cut_info)
         self.preview_panel.update_preview(filename)
+    
+    def update_ui(self):
+        """Update all UI components from the model"""
+        self.update_filename_preview()
+        self.clapperboard_panel.update_ui_from_model()
     
     def toggle_recording(self):
         """Toggle recording state and send appropriate OSC message"""
@@ -157,6 +227,7 @@ class MainWindow(QMainWindow):
                 
                 self.cut_info.increment_cut()
                 self.cut_info_panel.update_ui_from_model()
+                self.clapperboard_panel.update_ui_from_model()
                 
                 self.update_filename_preview()
                 
