@@ -46,3 +46,17 @@ python main.py
 4. 設定タブでOSCの設定を確認します（デフォルト: 127.0.0.1:3333）
 5. RECボタンを押して録画を開始し、STOPボタンで録画を停止します
 6. 録画停止時に自動的にカット番号がインクリメントされます
+
+## OBSの設定サンプルの使い方
+動作確認のため、OBSの設定サンプルを同梱しています。
+sample_videos/で設定サンプルを用いて録画したデータがご覧いただけます。
+
+### 設定サンプル
+1. OBSのメニューからプロファイル>インポートを選択
+2. sample_OBS_settings/Profile_Sample_cut-numbering-managerを読み込む
+3. OBSのメニューからプロファイル>Profile_Sample_cut-numbering-managerを選択
+
+### サンプルシーン
+1. OBSのメニューからシーンコレクション>インポートを選ぶ
+2. sample_OBS_settings/scene-collection_cut-numbering-manager.jsonを読み込む
+3. OBSのメニューからシーンコレクション>cut-numbering-managerを選択
