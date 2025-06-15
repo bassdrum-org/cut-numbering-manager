@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OBS時計ウィジェット</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: transparent;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #clock {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 320px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 6px 6px 12px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+        }
+
+        #milliseconds {
+            font-size: 220px;
+            opacity: 0.8;
+        }
+
+        .rotating-circle {
+            position: absolute;
+            width: 650px;
+            height: 650px;
+            border-radius: 50%;
+            border: 12px solid rgba(255, 255, 255, 0.2);
+            border-top: 12px solid rgba(255, 255, 255, 0.8);
+            animation: rotate 1s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="rotating-circle"></div>
+        <div id="clock"></div>
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+
+            const timeString = `${hours}:${minutes}:${seconds}<span id="milliseconds">.${milliseconds}</span>`;
+            document.getElementById('clock').innerHTML = timeString;
+        }
+
+        // 初回実行
+        updateClock();
+
+        // より滑らかな更新のため、より短い間隔で更新（約16.7msはおよそ60fpsに相当）
+        setInterval(updateClock, 16.7);
+    </script>
+</body>
+
+</html>
