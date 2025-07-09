@@ -16,7 +16,7 @@
   - [ダウンロードリンク](https://github.com/obsproject/obs-studio/releases/tag/27.2.4)
 - **OSC for OBS**: バージョン2.7.1
   - [ダウンロードリンク](https://github.com/jshea2/OSC-for-OBS/releases/tag/v2.7)
-- **OBS WebSocket**: バージョン5.0.1（compatフラグ付き）
+- **OBS WebSocket**: バージョン4.9.1（obs-websocket-4.9.1-compat-○○をダウンロード）
   - [ダウンロードリンク](https://github.com/obsproject/obs-websocket/releases/tag/5.0.1)
 
 ### Python要件
@@ -35,7 +35,7 @@ pip install -r requirements.txt
 
 ## 使用方法
 
-1. OBS Studio v27.2.4とOSC for OBS v2.7.1をインストールします
+1. OBS Studio v27.2.4とOSC for OBS v2.7.1, OBS WebSocketをインストールします
 2. アプリケーションを起動します:
 
 ```bash
