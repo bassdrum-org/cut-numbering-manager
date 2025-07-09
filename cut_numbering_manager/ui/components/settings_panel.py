@@ -88,46 +88,6 @@ class SettingsPanel(QWidget):
         
         filename_layout.addLayout(buttons_layout)
         
-        prefix_label = QLabel("接頭辞設定")
-        prefix_label.setStyleSheet("font-weight: bold; margin-top: 15px;")
-        filename_layout.addWidget(prefix_label)
-        
-        prefix_grid = QGridLayout()
-        prefix_grid.setVerticalSpacing(5)
-        prefix_grid.setHorizontalSpacing(10)
-        
-        prefix_grid.addWidget(QLabel("パート:"), 0, 0)
-        self.part_prefix_input = QLineEdit(self.filename_config.get_prefix(FilenameConfig.PART))
-        self.part_prefix_input.setPlaceholderText("なし")
-        self.part_prefix_input.textChanged.connect(self.update_prefix)
-        prefix_grid.addWidget(self.part_prefix_input, 0, 1)
-        
-        prefix_grid.addWidget(QLabel("シーン:"), 0, 2)
-        self.scene_prefix_input = QLineEdit(self.filename_config.get_prefix(FilenameConfig.SCENE))
-        self.scene_prefix_input.setPlaceholderText("なし")
-        self.scene_prefix_input.textChanged.connect(self.update_prefix)
-        prefix_grid.addWidget(self.scene_prefix_input, 0, 3)
-        
-        prefix_grid.addWidget(QLabel("カット:"), 1, 0)
-        self.cut_prefix_input = QLineEdit(self.filename_config.get_prefix(FilenameConfig.CUT))
-        self.cut_prefix_input.setPlaceholderText("なし")
-        self.cut_prefix_input.textChanged.connect(self.update_prefix)
-        prefix_grid.addWidget(self.cut_prefix_input, 1, 1)
-        
-        prefix_grid.addWidget(QLabel("バージョン:"), 1, 2)
-        self.version_prefix_input = QLineEdit(self.filename_config.get_prefix(FilenameConfig.VERSION))
-        self.version_prefix_input.setPlaceholderText("v")
-        self.version_prefix_input.textChanged.connect(self.update_prefix)
-        prefix_grid.addWidget(self.version_prefix_input, 1, 3)
-        
-        filename_layout.addLayout(prefix_grid)
-        
-        prefix_buttons_layout = QHBoxLayout()
-        self.reset_prefix_button = QPushButton("接頭辞リセット")
-        self.reset_prefix_button.clicked.connect(self.reset_prefixes)
-        prefix_buttons_layout.addWidget(self.reset_prefix_button)
-        prefix_buttons_layout.addStretch()
-        filename_layout.addLayout(prefix_buttons_layout)
         
         preview_label = QLabel("プレビュー: パート_シーン_カット_バージョン")
         preview_label.setStyleSheet("font-weight: bold; margin-top: 20px;")
@@ -174,11 +134,7 @@ class SettingsPanel(QWidget):
     
     def update_prefix(self):
         """Update prefix in the model when input changes"""
-        self.filename_config.set_prefix(FilenameConfig.PART, self.part_prefix_input.text())
-        self.filename_config.set_prefix(FilenameConfig.SCENE, self.scene_prefix_input.text())
-        self.filename_config.set_prefix(FilenameConfig.CUT, self.cut_prefix_input.text())
-        self.filename_config.set_prefix(FilenameConfig.VERSION, self.version_prefix_input.text())
-        self.emit_prefix_changed()
+        pass
     
     def reset_prefixes(self):
         """Reset prefixes to default values"""
@@ -208,10 +164,3 @@ class SettingsPanel(QWidget):
     def get_port(self):
         """Get the current port from input"""
         return self.port_input.value()
-    
-    def update_prefix_inputs_from_config(self):
-        """Update prefix input fields from the filename config"""
-        self.part_prefix_input.setText(self.filename_config.get_prefix(FilenameConfig.PART))
-        self.scene_prefix_input.setText(self.filename_config.get_prefix(FilenameConfig.SCENE))
-        self.cut_prefix_input.setText(self.filename_config.get_prefix(FilenameConfig.CUT))
-        self.version_prefix_input.setText(self.filename_config.get_prefix(FilenameConfig.VERSION))

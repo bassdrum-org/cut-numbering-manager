@@ -191,8 +191,6 @@ class MainWindow(QMainWindow):
         """Update all UI components from the model"""
         self.update_filename_preview()
         self.clapperboard_panel.update_ui_from_model()
-        self.settings_panel.filename_config = self.cut_info.filename_config
-        self.settings_panel.update_prefix_inputs_from_config()
     
     def toggle_recording(self):
         """Toggle recording state and send appropriate OSC message"""
