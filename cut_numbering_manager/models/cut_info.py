@@ -54,9 +54,9 @@ class CutInfo:
         if prefix is None:
             prefix = self.filename_config.get_prefix(FilenameConfig.PART)
         
-        if not prefix:
+        if prefix is None:
             return self.part_name
-        return prefix
+        return f"{prefix}{self.part_name}"
     
     def get_formatted_scene(self, prefix=None):
         """Get formatted scene name with custom prefix or default"""
@@ -65,7 +65,7 @@ class CutInfo:
         
         if not prefix:
             return self.scene_name
-        return prefix
+        return f"{prefix}{self.scene_name}"
     
     @staticmethod
     def sanitize_filename(name):
