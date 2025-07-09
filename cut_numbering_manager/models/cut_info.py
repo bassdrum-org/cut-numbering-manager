@@ -54,7 +54,7 @@ class CutInfo:
         if prefix is None:
             prefix = self.filename_config.get_prefix(FilenameConfig.PART)
         
-        if not prefix:
+        if prefix is None:
             return self.part_name
         return f"{prefix}{self.part_name}"
     
